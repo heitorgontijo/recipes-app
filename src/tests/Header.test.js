@@ -14,4 +14,17 @@ describe('Teste do componente "Header"', () => {
       expect(screen.getByTestId('profile-top-btn')).toBeInTheDocument();
       expect(screen.getByTestId('search-top-btn')).toBeInTheDocument();
     })
+    it('Verifica se todos os elementos estão sendo renderizados', () => {
+      renderWithHistory(<Header />);
+  
+      expect(screen.queryByTestId("search-input")).not.toBeInTheDocument();
+      userEvent.click(screen.getByTestId('search-top-btn'));
+      expect(screen.queryByTestId("search-input")).toBeInTheDocument();
+    })
+    it('verifica redirect btn profile' , () => {
+      const { history} = renderWithHistory(<Header />);
+
+      userEvent.click(screen.getByTestId('profile-top-btn'));
+      expect(history.location.pathname).toEqual('/profile');  
+    })
 });
