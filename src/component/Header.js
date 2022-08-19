@@ -16,7 +16,9 @@ function Header() {
   return (
     <header>
       <h1 data-testid="page-title">{objRoute[pathname]}</h1>
-      <img data-testid="profile-top-btn" src={ profileIcon } alt="profile Icone" />
+      <button onClick={ () => history.push('/profile') } type="button">
+        <img data-testid="profile-top-btn" src={ profileIcon } alt="profile Icone" />
+      </button>
       {!arrCondicional.includes(pathname) && <img
         data-testid="search-top-btn"
         src={ searchIcon }
