@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Redirect } from 'react-router-dom';
+import rockGlass from '../images/rockGlass.svg';
 
 function Login() {
   const [formData, setFormData] = useState(
@@ -31,9 +32,19 @@ function Login() {
     localStorage.setItem('cocktailsToken', '1');
     setRedirect(true);
   };
+
   if (redirect) return <Redirect to="/foods" />;
+
   return (
-    <>
+    <div className="meals">
+      <span className="logo">TRYBE</span>
+      <object
+        className="rocksGlass"
+        type="image/svg+xml"
+        data={ rockGlass }
+      >
+        Glass
+      </object>
       <input
         value={ formData.email }
         name="email"
@@ -57,7 +68,7 @@ function Login() {
         Enter
 
       </button>
-    </>
+    </div>
   );
 }
 
