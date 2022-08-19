@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Redirect } from 'react-router-dom';
 
 function Login() {
   const [formData, setFormData] = useState(
@@ -8,6 +9,7 @@ function Login() {
       isBtnDisabled: true,
     },
   );
+  const [redirect, setRedirect] = useState(false);
 
   useEffect(() => {
     const { email, password } = formData;
@@ -15,22 +17,21 @@ function Login() {
 
     const isValidEmail = /\S+@\S+\.\S+/.test(email);
     const isValidPassword = password.length > MIN_PASSWORD_SIZE;
-    console.log(isValidPassword);
     setFormData((prevState) => ({ ...prevState,
       isBtnDisabled: !(isValidEmail && isValidPassword) }));
   }, [formData.email, formData.password]);
 
   const handleChange = ({ target: { name, value } }) => {
     setFormData((prevState) => ({ ...prevState, [name]: value }));
-
-    // const CHARACTER_PASSWORD = 6;
-    // const checkPass = password.length < CHARACTER_PASSWORD;
-    // const checkEmail = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
-    // // fonte: https://stackoverflow.com/questions/940577/javascript-regular-expression-email-validation
-    // const check = !checkEmail.test(email) && checkPass;
-    // setFormData({ isBtnDisabled: !check });
   };
 
+  const handleSubmit = () => {
+    localStorage.setItem('user', JSON.stringify({ email: formData.email }));
+    localStorage.setItem('mealsToken', '1');
+    localStorage.setItem('cocktailsToken', '1');
+    setRedirect(true);
+  };
+  if (redirect) return <Redirect to="/foods" />;
   return (
     <>
       <input
@@ -51,6 +52,7 @@ function Login() {
         disabled={ formData.isBtnDisabled }
         type="button"
         data-testid="login-submit-btn"
+        onClick={ handleSubmit }
       >
         Enter
 
