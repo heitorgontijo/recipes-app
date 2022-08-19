@@ -5,12 +5,23 @@ import searchIcon from '../images/searchIcon.svg';
 
 function Header() {
   const history = useHistory();
-  console.log(history.location.pathname);
+  const { location: { pathname } } = history;
+  const arrCondicional = ['/profile', '/done-recipes', '/favorite-recipes'];
+  const objRoute = { '/foods': 'Foods',
+    '/drinks': 'Drinks',
+    '/done-recipes': 'Done Recipes',
+    '/favorite-recipes': 'Favorite Recipes',
+    '/profile': 'Profile',
+  };
   return (
     <header>
-      <h1 data-testid="profile-top-btn">Titulo</h1>
-      <img src={ profileIcon } alt="profile Icone" />
-      <img src={ searchIcon } alt="searcg Icone" />
+      <h1 data-testid="page-title">{objRoute[pathname]}</h1>
+      <img data-testid="profile-top-btn" src={ profileIcon } alt="profile Icone" />
+      {!arrCondicional.includes(pathname) && <img
+        data-testid="search-top-btn"
+        src={ searchIcon }
+        alt="searcg Icone"
+      />}
     </header>
   );
 }
