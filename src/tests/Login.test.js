@@ -1,40 +1,50 @@
-import React from 'react'
-import { render, screen } from '@testing-library/react'
-import Login from '../pages/Login'
-import userEvent from '@testing-library/user-event'
-// import renderWithRouter from '../tests/helpers/renderWithRouter'
+import React from 'react';
+import { screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 
-describe('Testa componente Login', () => {
-it('Testa se input de e-mail está sendo renderizado', () => {
-    render(<Login />)
-    const input = screen.getByTestId('email-input')
-    expect(input).toBeInTheDocument()
+import renderWithHistory from './helpers/renderWithHistory';
 
-})
-it('Testa se input de password está sendo renderizado', () => {
-    render(<Login />)
-    const password = screen.getByTestId('password-input')
-    expect(password).toBeInTheDocument()
+import Login from '../pages/Login';
 
-})
-it('Testa se o botão está sendo renderizado', () => {
-    render(<Login />)
-    const login = screen.getByTestId('login-submit-btn')
-    expect(login).toBeInTheDocument()
+describe('Teste do componente "Login"', () => {
+  it('Verifica se todos os elementos estão sendo renderizados', () => {
+    renderWithHistory(<Login />);
 
-})
-it('Testa se o botão redireciona para /foods', () => {
-    render(<Login />)
-    const input = screen.getByTestId('email-input')
-    const password = screen.getByTestId('password-input')
+    expect(screen.getByTestId('email-input')).toBeInTheDocument();
+    expect(screen.getByTestId('password-input')).toBeInTheDocument();
+    expect(screen.getByTestId('login-submit-btn')).toBeInTheDocument();
+    expect(screen.getByTestId('login-submit-btn')).toBeDisabled();
+  });
 
-    userEvent.type(input, 'email@test.com');
-    userEvent.type(password, '12345678');
-    const btn = screen.getByTestId('login-submit-btn')
-    expect(btn).toBeEnabled();
-    // userEvent.click(btn);
-    // expect()
-    
-})
+  it('Verifica se o botão de submit é ativado somente quando os '
+    + 'dados são válidos', () => {
+      renderWithHistory(<Login />);
 
-})
+      const emailInput = screen.getByTestId('email-input');
+      const passwordInput = screen.getByTestId('password-input');
+      const submitButton = screen.getByTestId('login-submit-btn');
+
+      userEvent.type(emailInput, 'emailInvalido.com');
+      userEvent.type(passwordInput, 'senhaValida');
+
+      expect(submitButton).toBeDisabled();
+
+      emailInput.value = '';
+      userEvent.type(emailInput, 'test@test.com');
+
+      expect(submitButton).toBeEnabled();
+  });
+
+  it('Verifica se ao clicar no botão de submit a rota é alterada para '
+    + 'a página de "Foods"', () => {
+      const { history } = renderWithHistory(<Login />);
+
+      expect(history.location.pathname).toBe('/');
+
+      userEvent.type(screen.getByTestId('email-input'), 'test@test.com');
+      userEvent.type(screen.getByTestId('password-input'), 'senhaValida');
+      userEvent.click(screen.getByTestId('login-submit-btn'));
+
+      expect(history.location.pathname).toBe('/foods');
+  });
+});
