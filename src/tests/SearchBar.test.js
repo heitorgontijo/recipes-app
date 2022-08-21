@@ -28,9 +28,9 @@ describe('Teste do componente "SearchBar"', () => {
   it('Verifica se apenas um radio pode ser selecionado por vez', () => {
     renderWithHistoryAndContext(<SearchBar />);
 
-    const ingredientFilter = screen.getByTestId('ingredient-search-radio');
-    const nameFilter = screen.getByTestId('name-search-radio');
-    const firstLetterFilter = screen.getByTestId('first-letter-search-radio');
+    const ingredientFilter = screen.getByTestId('ingredient-filter');
+    const nameFilter = screen.getByTestId('name-filter');
+    const firstLetterFilter = screen.getByTestId('first-letter-filter');
 
     userEvent.click(ingredientFilter);
     expect(nameFilter.checked).toBe(false);

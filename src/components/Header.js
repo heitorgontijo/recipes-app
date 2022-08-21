@@ -4,6 +4,8 @@ import { useHistory } from 'react-router-dom';
 import AppContext from '../context/AppContext';
 import SearchBar from './SearchBar';
 
+import '../assets/css/Header.css';
+
 import profileIcon from '../images/profileIcon.svg';
 import searchIcon from '../images/searchIcon.svg';
 
@@ -26,37 +28,56 @@ function Header() {
   };
 
   return (
-    <header>
-      <h1 data-testid="page-title">{routesTitle[pathname]}</h1>
+    <header className="header">
+      <section className="header-main">
+        <button
+          data-testid="profile-top-btn"
+          className="header-profile"
+          onClick={ () => history.push('/profile') }
+          src={ profileIcon }
+          type="button"
+        >
+          {/* <img data-testid="profile-top-btn" src={ profileIcon } alt="profile icon" /> */}
+          <i className="fa-solid fa-user-large" />
+        </button>
 
-      <button onClick={ () => history.push('/profile') } type="button">
-        <img data-testid="profile-top-btn" src={ profileIcon } alt="profile icon" />
-      </button>
+        <h1
+          className="header-title"
+          data-testid="page-title"
+        >
+          {routesTitle[pathname]}
+        </h1>
 
-      { showSearchButtonOn.includes(pathname)
+        { showSearchButtonOn.includes(pathname)
         && (
           <button
+            className="header-search-button"
+            data-testid="search-top-btn"
             onClick={ () => setSearchInputIsVisible(!searchInputIsVisible) }
+            src={ searchIcon }
             type="button"
           >
-            <img
+            {/* <img
               alt="search icon"
               data-testid="search-top-btn"
               src={ searchIcon }
-            />
+            /> */}
+            <i className="fas fa-search" />
           </button>
         ) }
+      </section>
 
       { searchInputIsVisible && (
-        <input
-          data-testid="search-input"
-          onChange={ ({ target: { value } }) => updateSearch(value) }
-          placeholder="Search recipe"
-          value={ search }
-        />
+        <div className="header-input-area">
+          <input
+            data-testid="search-input"
+            onChange={ ({ target: { value } }) => updateSearch(value) }
+            placeholder="Search recipe"
+            value={ search }
+          />
+          <SearchBar />
+        </div>
       ) }
-
-      <SearchBar />
     </header>
   );
 }
