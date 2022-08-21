@@ -13,6 +13,7 @@ describe('Teste do componente "Login"', () => {
     expect(screen.getByTestId('email-input')).toBeInTheDocument();
     expect(screen.getByTestId('password-input')).toBeInTheDocument();
     expect(screen.getByTestId('login-submit-btn')).toBeInTheDocument();
+    expect(screen.getByTestId('show-password')).toBeInTheDocument();
     expect(screen.getByTestId('login-submit-btn')).toBeDisabled();
   });
 
@@ -46,5 +47,16 @@ describe('Teste do componente "Login"', () => {
       userEvent.click(screen.getByTestId('login-submit-btn'));
 
       expect(history.location.pathname).toBe('/foods');
+  });
+
+  it('Verifica se o tipo de input muda quando o botão de mostrar senha '
+    + 'for clicado', () => {
+      renderWithHistory(<Login />);
+
+      const passwordInput = screen.getByTestId('password-input');
+      expect(passwordInput.type).toBe('password');
+
+      userEvent.click(screen.getByTestId('show-password'));
+      expect(passwordInput.type).toBe('text');
   });
 });
