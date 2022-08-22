@@ -4,6 +4,7 @@ import { Redirect } from 'react-router-dom';
 import AppContext from '../context/AppContext';
 import Header from '../components/Header';
 import RecipeCard from '../components/RecipeCard';
+import Footer from '../components/Footer';
 
 function Drinks() {
   const { drinks } = useContext(AppContext);
@@ -27,6 +28,7 @@ function Drinks() {
             index={ index }
           />
         )) }
+      <Footer />
     </main>
   );
 }
