@@ -10,6 +10,7 @@ function AppProvider({ children }) {
   const [drinks, setDrinks] = useState([]);
   const [search, setSearch] = useState('');
   const [searchFilter, setSearchFilter] = useState('');
+  const [filteredByToggle, setFilteredByToggle] = useState(false);
 
   const ALERT_OF_EMPTY_RESPONSE = 'Sorry, we haven\'t found any '
     + 'recipes for these filters.';
@@ -19,7 +20,12 @@ function AppProvider({ children }) {
       return global.alert('Your search must have only 1 (one) character');
     }
 
-    const fetchParameters = custom !== undefined ? custom : [search, searchFilter];
+    let fetchParameters;
+
+    if (custom) {
+      fetchParameters = custom; setFilteredByToggle(true);
+    } else { fetchParameters = [search, searchFilter]; setFilteredByToggle(false); }
+
     const updateState = type === 'meals' ? setMeals : setDrinks;
 
     fetchMealsOrDrinks(...fetchParameters, type)
@@ -41,6 +47,7 @@ function AppProvider({ children }) {
     meals,
     drinks,
     search,
+    filteredByToggle,
     updateSearch,
     updateSearchFilter,
     getMealsFromAPI,

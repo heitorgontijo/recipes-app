@@ -1,5 +1,5 @@
 import React, { useContext, useEffect } from 'react';
-import { useHistory } from 'react-router-dom';
+import { Redirect, useHistory } from 'react-router-dom';
 import AppContext from '../context/AppContext';
 
 import RecipeCard from './RecipeCard';
@@ -8,7 +8,7 @@ function Recipes() {
   const { location: { pathname } } = useHistory();
 
   const {
-    meals, drinks, getMealsFromAPI, getDrinksFromAPI,
+    meals, drinks, getMealsFromAPI, getDrinksFromAPI, filteredByToggle,
   } = useContext(AppContext);
 
   const recipes = pathname === '/foods' ? meals : drinks;
@@ -18,6 +18,10 @@ function Recipes() {
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => getRecipes(), []);
+
+  if (recipes.length === 1 && !filteredByToggle) {
+    return <Redirect to={ `${pathname}/${recipes[0].idMeal || recipes[0].idDrink}` } />;
+  }
 
   return (
     <section>

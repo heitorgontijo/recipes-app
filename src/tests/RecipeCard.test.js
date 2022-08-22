@@ -1,5 +1,8 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event'
+
+import renderWithHistory from './helpers/renderWithHistory';
 
 import RecipeCard from '../components/RecipeCard';
 
@@ -8,12 +11,13 @@ const props = {
   category: 'categoria-de-teste',
   image: 'imagem-de-teste',
   index: 4,
+  to: '/alguma-rota',
 };
 
 describe('Teste do componente "RecipeCard"', () => {
   it('Verifica se as informações passadas estão presentes do card '
     + 'de receita', () => {
-      render(<RecipeCard { ...props } />);
+      renderWithHistory(<RecipeCard { ...props } />);
 
       const image = screen.getByTestId('4-card-img')
 
@@ -22,5 +26,12 @@ describe('Teste do componente "RecipeCard"', () => {
       expect(image).toBeInTheDocument();
       expect(image.src).toContain('imagem-de-teste');
       expect(screen.getByText(/categoria-de-teste/i)).toBeInTheDocument();
+  });
+
+  it('Verifica se ao clicar no card a rota é alterada', () => {
+    const { history } = renderWithHistory(<RecipeCard { ...props } />);
+    
+    userEvent.click(screen.getByRole('link'));
+    expect(history.location.pathname).toBe('/alguma-rota');
   });
 });

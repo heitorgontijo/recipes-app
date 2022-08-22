@@ -3,9 +3,6 @@ import { Link } from 'react-router-dom';
 import { string, number } from 'prop-types';
 
 function RecipeCard({ title, category, image, index, to }) {
-  console.log(to);
-  console.log(`${index}-recipe-card`);
-
   return (
     <section data-testid={ `${index}-recipe-card` }>
       <Link to={ to }>
@@ -23,7 +20,7 @@ function RecipeCard({ title, category, image, index, to }) {
 }
 
 RecipeCard.defaultProps = {
-  category: 'Recipe',
+  category: 'Unknown',
 };
 
 RecipeCard.propTypes = {
