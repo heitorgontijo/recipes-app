@@ -24,7 +24,7 @@ function AppProvider({ children }) {
     fetchMealsOrDrinks(search, searchFilter, type)
       .then((data) => {
         if (data[type]?.length === 0 || data[type] === null) {
-          global.alert(ALERT_OF_EMPTY_RESPONSE);
+          return global.alert(ALERT_OF_EMPTY_RESPONSE);
         }
         return updateState(data[type] || []);
       });
