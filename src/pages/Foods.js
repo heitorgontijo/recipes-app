@@ -4,6 +4,7 @@ import { Redirect } from 'react-router-dom';
 import AppContext from '../context/AppContext';
 import Header from '../components/Header';
 import RecipeCard from '../components/RecipeCard';
+import Footer from '../components/Footer';
 
 function Foods() {
   const { meals } = useContext(AppContext);
@@ -26,6 +27,7 @@ function Foods() {
             index={ index }
           />
         )) }
+      <Footer />
     </main>
   );
 }
