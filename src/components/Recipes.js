@@ -30,6 +30,7 @@ function Recipes() {
             title={ recipe.strMeal || recipe.strDrink }
             category={ recipe.strCategory }
             index={ index }
+            to={ `${pathname.replace('/', '')}/${recipe.idMeal || recipe.idDrink}` }
           />
         )) }
     </section>

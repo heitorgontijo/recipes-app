@@ -16,9 +16,13 @@ function RecipeCard({ title, category, image, index }) {
   );
 }
 
+RecipeCard.defaultProps = {
+  category: 'Recipe',
+};
+
 RecipeCard.propTypes = {
   title: string.isRequired,
-  category: string.isRequired,
+  category: string,
   image: string.isRequired,
   index: number.isRequired,
 };

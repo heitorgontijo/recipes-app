@@ -14,14 +14,15 @@ function AppProvider({ children }) {
   const ALERT_OF_EMPTY_RESPONSE = 'Sorry, we haven\'t found any '
     + 'recipes for these filters.';
 
-  const requestAPI = (type) => {
+  const requestAPI = (custom, type) => {
     if (search.length > 1 && searchFilter === 'first-letter') {
       return global.alert('Your search must have only 1 (one) character');
     }
 
+    const fetchParameters = custom !== undefined ? custom : [search, searchFilter];
     const updateState = type === 'meals' ? setMeals : setDrinks;
 
-    fetchMealsOrDrinks(search, searchFilter, type)
+    fetchMealsOrDrinks(...fetchParameters, type)
       .then((data) => {
         if (data[type]?.length === 0 || data[type] === null) {
           return global.alert(ALERT_OF_EMPTY_RESPONSE);
@@ -30,8 +31,8 @@ function AppProvider({ children }) {
       });
   };
 
-  const getMealsFromAPI = () => requestAPI('meals');
-  const getDrinksFromAPI = () => requestAPI('drinks');
+  const getMealsFromAPI = (custom) => requestAPI(custom, 'meals');
+  const getDrinksFromAPI = (custom) => requestAPI(custom, 'drinks');
 
   const updateSearch = (value) => setSearch(value);
   const updateSearchFilter = (value) => setSearchFilter(value);
