@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { Redirect } from 'react-router-dom';
+import { useHistory } from 'react-router-dom';
+
+import '../assets/css/Login.css';
 
 function Login() {
   const [formData, setFormData] = useState({ email: '', password: '' });
   const [submitButtonIsDisabled, setSubmitButtonIsDisabled] = useState(true);
-  const [redirect, setRedirect] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const history = useHistory();
 
   const handleChange = ({ target: { name, value } }) => {
     setFormData((prevState) => ({ ...prevState, [name]: value }));
@@ -15,7 +18,7 @@ function Login() {
     localStorage.setItem('mealsToken', '1');
     localStorage.setItem('cocktailsToken', '1');
 
-    setRedirect(true);
+    history.push('/foods');
   };
 
   const validateFormData = () => {
@@ -30,26 +33,55 @@ function Login() {
 
   useEffect(validateFormData, [formData]);
 
-  if (redirect) return <Redirect to="/foods" />;
-
   return (
-    <main>
-      <form>
-        <input
-          data-testid="email-input"
-          name="email"
-          onChange={ handleChange }
-          type="email"
-          value={ formData.email }
-        />
+    <main className="page login">
+      <form className="login-form">
+        <header className="form-header">
+          <h1>
+            Recipes
+            <span>App</span>
+          </h1>
+        </header>
 
-        <input
-          data-testid="password-input"
-          name="password"
-          onChange={ handleChange }
-          type="password"
-          value={ formData.password }
-        />
+        <label htmlFor="email" className="form-label">
+          E-mail:
+          <div className="form-input-group">
+            <input
+              data-testid="email-input"
+              id="email"
+              name="email"
+              onChange={ handleChange }
+              placeholder="Type your e-mail..."
+              type="email"
+              value={ formData.email }
+            />
+            <i className="fa-solid fa-at" />
+          </div>
+        </label>
+
+        <label htmlFor="password" className="form-label">
+          Password:
+          <div className="form-input-group">
+            <input
+              data-testid="password-input"
+              name="password"
+              onChange={ handleChange }
+              placeholder="Type your password..."
+              type={ showPassword ? 'text' : 'password' }
+              value={ formData.password }
+            />
+
+            <button
+              data-testid="show-password"
+              onClick={ () => setShowPassword(!showPassword) }
+              type="button"
+            >
+              { showPassword
+                ? <i className="fa-solid fa-eye-slash" />
+                : <i className="fa-solid fa-eye" /> }
+            </button>
+          </div>
+        </label>
 
         <button
           data-testid="login-submit-btn"
@@ -57,7 +89,7 @@ function Login() {
           onClick={ handleSubmit }
           type="button"
         >
-          Enter
+          Login
         </button>
       </form>
     </main>

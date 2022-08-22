@@ -1,0 +1,106 @@
+.page {
+  min-height: max(100vh, 600px);
+}
+
+.login {
+  align-items: center;
+  background: linear-gradient(0deg, rgba(246, 246, 246, 1)
+  0%, rgba(245, 255, 241, 1) 100%);
+  display: flex;
+  justify-content: center;
+}
+
+.login-form {
+  background-color: var(--primary-color);
+  border-radius: 12px;
+  box-shadow: 0 0 20px rgba(0 0 0 / 10%);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  padding-bottom: 28px;
+  row-gap: 24px;
+}
+
+.form-header {
+  align-items: center;
+  background-color: var(--secondary-color);
+  background-image: url('../images/loginFormHeader.png');
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  border-bottom: 3px solid var(--theme);
+  display: flex;
+  height: 126px;
+  padding: 20px;
+  position: relative;
+}
+
+.form-header h1 {
+  color: var(--theme);
+}
+
+.form-header span {
+  color: var(--font-color);
+}
+
+.form-label {
+  display: flex;
+  flex-direction: column;
+  font-weight: 600;
+  padding-inline: 20px;
+  row-gap: 10px;
+}
+
+.form-label div {
+  align-items: center;
+  display: flex;
+  position: relative;
+}
+
+.form-input-group i, .form-input-group button {
+  color: var(--theme);
+  position: absolute;
+  right: 12px;
+}
+
+.form-input-group button {
+  align-items: center;
+  display: flex;
+  height: 20px;
+  justify-content: center;
+  text-align: center;
+  width: 20px;
+}
+
+.form-input-group button i {
+  position: static;
+}
+
+.form-input-group input {
+  background-color: var(--secondary-color);
+  border: 2px solid transparent;
+  border-radius: 4px;
+  height: 38px;
+  padding-inline: 12px;
+  width: 255px;
+}
+
+.form-input-group input:focus {
+  border-color: var(--theme);
+}
+
+.login-form > button {
+  align-self: center;
+  background-color: var(--theme);
+  border-radius: 4px;
+  color: var(--primary-color);
+  cursor: pointer;
+  height: 38px;
+  margin-top: 8px;
+  width: 100px;
+}
+
+.login-form > button:disabled {
+  background-color: var(--secondary-color);
+  color: var(--font-color);
+}
