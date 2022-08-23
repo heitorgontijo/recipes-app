@@ -1,8 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { node } from 'prop-types';
 
 import fetchMealsOrDrinks from '../services/fetchMealsOrDrinks';
-import fetchRecipeDetails from '../services/fetchRecipeDetails';
 
 import AppContext from './AppContext';
 
@@ -44,14 +43,6 @@ function AppProvider({ children }) {
   const updateSearch = (value) => setSearch(value);
   const updateSearchFilter = (value) => setSearchFilter(value);
 
-  useEffect(() => {
-    const apiCalled = async () => {
-      const api = await fetchRecipeDetails('178319');
-      setRecipeReturn(api);
-    };
-    apiCalled();
-  }, []);
-
   const value = {
     meals,
     drinks,
@@ -61,9 +52,6 @@ function AppProvider({ children }) {
     updateSearchFilter,
     getMealsFromAPI,
     getDrinksFromAPI,
-    idHistory,
-    setIdHistory,
-    recipeReturn,
   };
 
   return (
