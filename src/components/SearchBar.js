@@ -71,7 +71,7 @@ function SearchBar() {
       <button
         type="button"
         data-testid="exec-search-btn"
-        onClick={ request }
+        onClick={ () => request() }
       >
         Search
       </button>

@@ -10,28 +10,35 @@ function AppProvider({ children }) {
   const [drinks, setDrinks] = useState([]);
   const [search, setSearch] = useState('');
   const [searchFilter, setSearchFilter] = useState('');
+  const [filteredByToggle, setFilteredByToggle] = useState(false);
 
   const ALERT_OF_EMPTY_RESPONSE = 'Sorry, we haven\'t found any '
     + 'recipes for these filters.';
 
-  const requestAPI = (type) => {
+  const requestAPI = (custom, type) => {
     if (search.length > 1 && searchFilter === 'first-letter') {
       return global.alert('Your search must have only 1 (one) character');
     }
 
+    let fetchParameters;
+
+    if (custom) {
+      fetchParameters = custom; setFilteredByToggle(true);
+    } else { fetchParameters = [search, searchFilter]; setFilteredByToggle(false); }
+
     const updateState = type === 'meals' ? setMeals : setDrinks;
 
-    fetchMealsOrDrinks(search, searchFilter, type)
+    fetchMealsOrDrinks(...fetchParameters, type)
       .then((data) => {
         if (data[type]?.length === 0 || data[type] === null) {
-          global.alert(ALERT_OF_EMPTY_RESPONSE);
+          return global.alert(ALERT_OF_EMPTY_RESPONSE);
         }
         return updateState(data[type] || []);
       });
   };
 
-  const getMealsFromAPI = () => requestAPI('meals');
-  const getDrinksFromAPI = () => requestAPI('drinks');
+  const getMealsFromAPI = (custom) => requestAPI(custom, 'meals');
+  const getDrinksFromAPI = (custom) => requestAPI(custom, 'drinks');
 
   const updateSearch = (value) => setSearch(value);
   const updateSearchFilter = (value) => setSearchFilter(value);
@@ -40,6 +47,7 @@ function AppProvider({ children }) {
     meals,
     drinks,
     search,
+    filteredByToggle,
     updateSearch,
     updateSearchFilter,
     getMealsFromAPI,

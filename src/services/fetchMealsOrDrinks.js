@@ -6,6 +6,7 @@ export default async (value = '', filter = 'name', type = 'meals') => {
   switch (filter) {
   case 'ingredient': URL_API += `filter.php?i=${value}`; break;
   case 'first-letter': URL_API += `search.php?f=${value}`; break;
+  case 'category': URL_API += `filter.php?c=${value}`; break;
   default: URL_API += `search.php?s=${value}`; break;
   }
 
