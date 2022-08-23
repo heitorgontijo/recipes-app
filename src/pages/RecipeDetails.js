@@ -6,16 +6,17 @@ import fetchMealsOrDrinks from '../services/fetchMealsOrDrinks';
 import '../assets/css/RecipeDetails.css';
 
 function RecipeDetails() {
-  const { location: { pathname } } = useHistory();
+  const history = useHistory();
   const { id } = useParams();
 
   const [recipeDetails, setRecipeDetails] = useState(null);
   const [ingredients, setIngredients] = useState([]);
   const [recommendations, setRecommendations] = useState([]);
   const [btnStartRecipe, setBtnStartRecipe] = useState(true);
+  const [btnInProgress, setBtnInProgress] = useState(true);
 
   useEffect(() => {
-    const recipeType = pathname.match(/foods\//i) ? 'meals' : 'drinks';
+    const recipeType = history.location.pathname.match(/foods\//i) ? 'meals' : 'drinks';
 
     fetchRecipeDetails(id, recipeType)
       .then((data) => {
@@ -43,12 +44,14 @@ function RecipeDetails() {
             .filter((_item, index) => index < MAX_RECOMMENDATIONS_LENGTH));
         }
       });
-  }, [id, pathname]);
+  }, [id]);
   useEffect(() => {
     const doneRecipes = JSON.parse(localStorage.getItem('doneRecipes'));
+    const inProgress = JSON.parse(localStorage.getItem('inProgressRecipes'));
     console.log(!btnStartRecipe);
+    setBtnInProgress(inProgress?.cocktails[id] || inProgress?.meals[id]);
     setBtnStartRecipe(!doneRecipes?.some((e) => e.id === id));
-  }, [btnStartRecipe, id]);
+  }, [btnStartRecipe, btnInProgress, id]);
 
   return (
     <div>
@@ -119,8 +122,13 @@ function RecipeDetails() {
           className="btn-startRecipe"
           data-testid="start-recipe-btn"
           type="button"
+          onClick={ () => history.push(
+            history.location.pathname.includes('foods')
+              ? `/foods/${id}/in-progress`
+              : `/drinks/${id}/in-progress`,
+          ) }
         >
-          Start recipe
+          {btnInProgress ? 'Continue Recipe' : 'Start Recipe'}
         </button>
       )}
     </div>
