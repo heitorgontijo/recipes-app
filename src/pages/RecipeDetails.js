@@ -3,6 +3,7 @@ import { useHistory, useParams } from 'react-router-dom';
 
 import fetchRecipeDetails from '../services/fetchRecipeDetails';
 import fetchMealsOrDrinks from '../services/fetchMealsOrDrinks';
+import '../assets/css/RecipeDetails.css';
 
 function RecipeDetails() {
   const { location: { pathname } } = useHistory();
@@ -11,6 +12,7 @@ function RecipeDetails() {
   const [recipeDetails, setRecipeDetails] = useState(null);
   const [ingredients, setIngredients] = useState([]);
   const [recommendations, setRecommendations] = useState([]);
+  const [btnStartRecipe, setBtnStartRecipe] = useState(true);
 
   useEffect(() => {
     const recipeType = pathname.match(/foods\//i) ? 'meals' : 'drinks';
@@ -41,8 +43,12 @@ function RecipeDetails() {
             .filter((_item, index) => index < MAX_RECOMMENDATIONS_LENGTH));
         }
       });
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [id, pathname]);
+  useEffect(() => {
+    const doneRecipes = JSON.parse(localStorage.getItem('doneRecipes'));
+    console.log(!btnStartRecipe);
+    setBtnStartRecipe(!doneRecipes?.some((e) => e.id === id));
+  }, [btnStartRecipe, id]);
 
   return (
     <div>
@@ -87,17 +93,36 @@ function RecipeDetails() {
               data-testid="video"
             /> }
 
-          { recommendations.map((recommendation, index) => (
-            <div key={ index } data-testid={ `${index}-recomendation-card` }>
-              <p data-testid={ `${index}-recomendation-title` }>
-                { recommendation.strMeal || recommendation.strDrink }
-              </p>
-            </div>
-          )) }
+          <section className="recommendations">
+            {recommendations
+              .map((recommendation, index) => (
+                <div
+                  key={ index }
+                  data-testid={ `${index}-recomendation-card` }
+                >
+                  <p data-testid={ `${index}-recomendation-title` }>
+                    { recommendation.strMeal || recommendation.strDrink }
+                  </p>
+                  <img
+                    src={ recommendation.strMealThumb
+                     || recommendation.strDrinkThumb }
+                    alt="recomendation"
+                  />
+                </div>
+              )) }
+          </section>
         </div>
       ) }
-
-      <button data-testid="start-recipe-btn" type="button">Start recipe</button>
+      {btnStartRecipe
+      && (
+        <button
+          className="btn-startRecipe"
+          data-testid="start-recipe-btn"
+          type="button"
+        >
+          Start recipe
+        </button>
+      )}
     </div>
   );
 }
