@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useHistory, useParams } from 'react-router-dom';
+import copy from 'clipboard-copy';
 
 import fetchRecipeDetails from '../services/fetchRecipeDetails';
 import fetchMealsOrDrinks from '../services/fetchMealsOrDrinks';
@@ -14,6 +15,7 @@ function RecipeDetails() {
   const [recommendations, setRecommendations] = useState([]);
   const [btnStartRecipe, setBtnStartRecipe] = useState(true);
   const [btnInProgress, setBtnInProgress] = useState(true);
+  const [btnShare, setBtnShare] = useState(false);
 
   useEffect(() => {
     const recipeType = history.location.pathname.match(/foods\//i) ? 'meals' : 'drinks';
@@ -45,6 +47,7 @@ function RecipeDetails() {
         }
       });
   }, [id]);
+
   useEffect(() => {
     const doneRecipes = JSON.parse(localStorage.getItem('doneRecipes'));
     const inProgress = JSON.parse(localStorage.getItem('inProgressRecipes'));
@@ -52,12 +55,51 @@ function RecipeDetails() {
     setBtnInProgress(inProgress?.cocktails[id] || inProgress?.meals[id]);
     setBtnStartRecipe(!doneRecipes?.some((e) => e.id === id));
   }, [btnStartRecipe, btnInProgress, id]);
+  console.log(recipeDetails);
+  const handleFavorite = () => {
+    const getFavoriteRecipes = JSON.parse(localStorage.getItem('favoriteRecipes'));
+
+    const localStorageFavorite = {
+      id,
+      type: history.location.pathname.match(/foods\//i) ? 'food' : 'drink',
+      nationality: recipeDetails.strArea || '',
+      category: recipeDetails.strCategory || '',
+      alcoholicOrNot: recipeDetails.strAlcoholic || '',
+      name: recipeDetails.strMeal || recipeDetails.strDrink,
+      image: recipeDetails.strMealThumb || recipeDetails.strDrinkThumb,
+    };
+    if (getFavoriteRecipes) {
+      return localStorage
+        .setItem('favoriteRecipes', JSON.stringify([...getFavoriteRecipes,
+          localStorageFavorite]));
+    } localStorage.setItem('favoriteRecipes', JSON.stringify([localStorageFavorite]));
+  };
 
   return (
     <div>
       { recipeDetails && (
         <div>
           <h1>RecipeDetails</h1>
+          <button
+            onClick={ () => { copy(window.location.href); setBtnShare(true); } }
+            type="button"
+            data-testid="share-btn"
+          >
+            Compartilhar
+            {' '}
+
+          </button>
+          {btnShare && <span>Link copied!</span>}
+
+          <button
+            onClick={ handleFavorite }
+            type="button"
+            data-testid="favorite-btn"
+          >
+            Favoritar
+            {' '}
+
+          </button>
 
           <img
             width="200px"
