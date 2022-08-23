@@ -8,7 +8,7 @@ import Footer from '../components/Footer';
 
 function Foods() {
   const { meals } = useContext(AppContext);
-
+  console.log(meals);
   if (meals.length === 1) return <Redirect to={ `/foods/${meals[0].idMeal}` } />;
 
   const MAX_RECIPES_TO_SHOW = 12;
