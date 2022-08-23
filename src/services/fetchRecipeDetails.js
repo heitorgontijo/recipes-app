@@ -1,13 +1,9 @@
-const fetchRecipeDetails = async (idParam) => {
-  try {
-    const responseMeals = await fetch(`https://www.themealdb.com/api/json/v1/1/lookup.php?i=${idParam}`);
-    const responseDrinks = await fetch(`https://www.thecocktaildb.com/api/json/v1/1/lookup.php?i=${idParam}`);
-    const dataMeal = await responseMeals.json();
-    const dataDrink = await responseDrinks.json();
-    if (dataDrink.drinks === null) { return dataMeal; } return dataDrink;
-  } catch (error) {
-    console.log(error);
-  }
-};
+export default async (id, type) => {
+  const URL_API = type === 'meals'
+    ? `https://www.themealdb.com/api/json/v1/1/lookup.php?i=${id}`
+    : `https://www.thecocktaildb.com/api/json/v1/1/lookup.php?i=${id}`;
 
-export default fetchRecipeDetails;
+  try {
+    const response = await fetch(URL_API); return response.json();
+  } catch { return {}; }
+};

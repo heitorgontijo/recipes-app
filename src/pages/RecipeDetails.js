@@ -1,90 +1,105 @@
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useHistory, useParams } from 'react-router-dom';
+
 import fetchRecipeDetails from '../services/fetchRecipeDetails';
+import fetchMealsOrDrinks from '../services/fetchMealsOrDrinks';
 
 function RecipeDetails() {
+  const { location: { pathname } } = useHistory();
   const { id } = useParams();
 
-  const [recipeReturn, setRecipeReturn] = useState({});
+  const [recipeDetails, setRecipeDetails] = useState(null);
   const [ingredients, setIngredients] = useState([]);
-  const [category, setCategory] = useState('');
+  const [recommendations, setRecommendations] = useState([]);
 
   useEffect(() => {
-    const apiCalled = async () => {
-      const api = await fetchRecipeDetails(id);
-      setRecipeReturn(api);
+    const recipeType = pathname.match(/foods\//i) ? 'meals' : 'drinks';
 
-      if (Object.hasOwn(api, 'meals')) {
-        setCategory('meals');
-        setIngredients(Object.keys(api.meals[0])
-          .filter((e) => e.includes('strIngredient')));
-      } else if (Object.hasOwn(api, 'drinks')) {
-        setCategory('drinks');
-        setIngredients(Object.keys(api.drinks[0])
-          .filter((e) => e.includes('strIngredient')));
-      }
-    };
-    apiCalled();
+    fetchRecipeDetails(id, recipeType)
+      .then((data) => {
+        const recipe = data[recipeType] ? data[recipeType][0] : {};
+
+        const ingredientKeys = Object.keys(recipe)
+          .filter((key) => key.match(/strIngredient/i) && recipe[key]);
+
+        const measureKeys = Object.keys(recipe)
+          .filter((key) => key.match(/strMeasure/i) && recipe[key]);
+
+        setRecipeDetails(recipe);
+        setIngredients(ingredientKeys
+          .map((key, index) => `${recipe[key]} ${recipe[measureKeys[index]] || ''}`));
+      });
+
+    const MAX_RECOMMENDATIONS_LENGTH = 6;
+    const recommendationType = recipeType === 'meals' ? 'drinks' : 'meals';
+
+    fetchMealsOrDrinks('', 'name', recommendationType)
+      .then((data) => {
+        const items = data[recommendationType];
+        if (items) {
+          setRecommendations(items
+            .filter((_item, index) => index < MAX_RECOMMENDATIONS_LENGTH));
+        }
+      });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
-
     <div>
-      {category !== '' && (
+      { recipeDetails && (
         <div>
-          {console.log(category)}
           <h1>RecipeDetails</h1>
+
           <img
             width="200px"
-            src={ category === 'drinks' ? (recipeReturn.drinks[0].strDrinkThumb)
-              : recipeReturn.meals[0].strMealThumb }
+            src={ recipeDetails.strMealThumb || recipeDetails.strDrinkThumb }
             alt="drink"
             data-testid="recipe-photo"
           />
+
           <h2 data-testid="recipe-title">
-            {category === 'drinks' ? recipeReturn.drinks[0].strDrink
-              : recipeReturn.meals[0].strMeal}
+            { recipeDetails.strMeal || recipeDetails.strDrink }
           </h2>
+
           <p data-testid="recipe-category">
-            {category === 'drinks' ? recipeReturn[category][0].strAlcoholic
-              : recipeReturn[category][0].strCategory}
+            { recipeDetails.strAlcoholic || recipeDetails.strCategory }
           </p>
 
-          {ingredients.map((ingredient, i) => (
-            (recipeReturn.meals[0][ingredient] !== null
-              && recipeReturn[category][0][ingredient] !== '')
-              && (
-                <h1 key={ i } data-testid={ `${i}-ingredient-name-and-measure` }>
-                  {recipeReturn[category][0][ingredient]}
-                </h1>
-              )
-          ))}
+          { ingredients.map((ingredient, index) => (
+            <h1 key={ index } data-testid={ `${index}-ingredient-name-and-measure` }>
+              {ingredient}
+            </h1>
+          )) }
 
-          {recipeReturn.meals
-          && <iframe
-            id="player"
-            type="text/html"
-            width="640"
-            height="360"
-            title={ recipeReturn.meals[0].strMeal }
-            src={ `https://www.youtube.com/embed/${recipeReturn.meals[0].strYoutube.split('=')[1]}` }
-            frameBorder="0"
-          />}
-          ;
+          <p data-testid="instructions">
+            { recipeDetails.strInstructions }
+          </p>
+
+          { recipeDetails.strYoutube
+            && <iframe
+              id="player"
+              type="text/html"
+              width="640"
+              height="360"
+              title={ recipeDetails.strMeal }
+              src={ `https://www.youtube.com/embed/${recipeDetails.strYoutube.split('=')[1]}` }
+              frameBorder="0"
+              data-testid="video"
+            /> }
+
+          { recommendations.map((recommendation, index) => (
+            <div key={ index } data-testid={ `${index}-recomendation-card` }>
+              <p data-testid={ `${index}-recomendation-title` }>
+                { recommendation.strMeal || recommendation.strDrink }
+              </p>
+            </div>
+          )) }
         </div>
-
       ) }
+
+      <button data-testid="start-recipe-btn" type="button">Start recipe</button>
     </div>
-
   );
-
-  //   </div>
-  // ))}
-
-  // </div>
 }
-// RecipeDetails.propTypes = {
-//   category: PropTypes.string,
-// }.isRequired;
 
 export default RecipeDetails;
