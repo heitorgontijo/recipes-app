@@ -1,0 +1,25 @@
+.recommendations {
+  column-gap: 10px;
+  display: flex;
+  max-width: 100vw;
+  overflow-x: auto;
+}
+
+.recommendations > div {
+  align-items: center;
+  display: flex;
+  flex-shrink: 0;
+  height: 100px;
+  justify-content: center;
+  width: 50%;
+}
+
+iframe {
+  max-width: 100vw;
+}
+
+.btn-startRecipe {
+  bottom: 0;
+  position: fixed;
+  right: 10px;
+}

@@ -32,8 +32,7 @@ function AppProvider({ children }) {
       .then((data) => {
         if (data[type]?.length === 0 || data[type] === null) {
           return global.alert(ALERT_OF_EMPTY_RESPONSE);
-        }
-        return updateState(data[type] || []);
+        } return updateState(data[type] || []);
       });
   };
 
