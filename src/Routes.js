@@ -6,12 +6,15 @@ import Login from './pages/Login';
 import Profile from './pages/Profile';
 import FavoriteRecipes from './pages/FavoriteRecipes';
 import DoneRecipes from './pages/DoneRecipes';
+import RecipeDetails from './pages/RecipeDetails';
 
 export default () => (
   <Switch>
     <Route path="/" exact component={ Login } />
     <Route path="/foods" exact component={ Foods } />
     <Route path="/drinks" exact component={ Drinks } />
+    <Route path="/drinks/:id" exact component={ RecipeDetails } />
+    <Route path="/foods/:id" exact component={ RecipeDetails } />
     <Route path="/profile" exact component={ Profile } />
     <Route path="/done-recipes" exact component={ DoneRecipes } />
     <Route path="/favorite-recipes" exact component={ FavoriteRecipes } />
