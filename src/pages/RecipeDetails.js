@@ -4,124 +4,141 @@ import copy from 'clipboard-copy';
 
 import fetchRecipeDetails from '../services/fetchRecipeDetails';
 import fetchMealsOrDrinks from '../services/fetchMealsOrDrinks';
-import '../assets/css/RecipeDetails.css';
+
 import whiteHeart from '../images/whiteHeartIcon.svg';
 import blackHeart from '../images/blackHeartIcon.svg';
 
+import '../assets/css/RecipeDetails.css';
+
 function RecipeDetails() {
   const history = useHistory();
+  const { location: { pathname } } = history;
   const { id } = useParams();
 
   const [recipeDetails, setRecipeDetails] = useState(null);
   const [ingredients, setIngredients] = useState([]);
   const [recommendations, setRecommendations] = useState([]);
-  const [btnStartRecipe, setBtnStartRecipe] = useState(true);
-  const [btnInProgress, setBtnInProgress] = useState(true);
-  const [btnShare, setBtnShare] = useState(false);
-  const [btnFavorite, setBtnFavorite] = useState(false);
+  const [startRecipe, setStartRecipe] = useState(true);
+  const [shareRecipe, setShareRecipe] = useState(false);
+  const [recipeInProgress, setRecipeInProgress] = useState(true);
+  const [recipeIsFavorite, setRecipeIsFavorite] = useState(false);
+
+  const RECIPE_TYPE = pathname.match(/foods\//i) ? 'meals' : 'drinks';
 
   useEffect(() => {
-    const recipeType = history.location.pathname.match(/foods\//i) ? 'meals' : 'drinks';
-
-    fetchRecipeDetails(id, recipeType)
+    fetchRecipeDetails(id, RECIPE_TYPE)
       .then((data) => {
-        const recipe = data[recipeType] ? data[recipeType][0] : {};
+        if (data[RECIPE_TYPE]) {
+          const recipe = data[RECIPE_TYPE][0];
 
-        const ingredientKeys = Object.keys(recipe)
-          .filter((key) => key.match(/strIngredient/i) && recipe[key]);
+          const ingredientKeys = Object.keys(recipe)
+            .filter((key) => key.match(/strIngredient/i) && recipe[key]);
 
-        const measureKeys = Object.keys(recipe)
-          .filter((key) => key.match(/strMeasure/i) && recipe[key]);
+          const measureKeys = Object.keys(recipe)
+            .filter((key) => key.match(/strMeasure/i) && recipe[key]);
 
-        setRecipeDetails(recipe);
-        setIngredients(ingredientKeys
-          .map((key, index) => `${recipe[key]} ${recipe[measureKeys[index]] || ''}`));
-      });
-
-    const MAX_RECOMMENDATIONS_LENGTH = 6;
-    const recommendationType = recipeType === 'meals' ? 'drinks' : 'meals';
-
-    fetchMealsOrDrinks('', 'name', recommendationType)
-      .then((data) => {
-        const items = data[recommendationType];
-        if (items) {
-          setRecommendations(items
-            .filter((_item, index) => index < MAX_RECOMMENDATIONS_LENGTH));
+          setRecipeDetails(recipe);
+          setIngredients(ingredientKeys
+            .map((key, index) => (
+              `${recipe[key]} ${recipe[measureKeys[index]] || ''}`
+            )));
         }
       });
-  }, [id]);
-
-  useEffect(() => {
-    const getFavoriteRecipes = JSON.parse(localStorage.getItem('favoriteRecipes'));
-    setBtnFavorite(getFavoriteRecipes?.some((recipe) => (recipe.id === id)));
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
-    const doneRecipes = JSON.parse(localStorage.getItem('doneRecipes'));
-    const inProgress = JSON.parse(localStorage.getItem('inProgressRecipes'));
-    setBtnInProgress(inProgress?.cocktails[id] || inProgress?.meals[id]);
-    setBtnStartRecipe(!doneRecipes?.some((e) => e.id === id));
-  }, [btnStartRecipe, btnInProgress, id]);
+    const MAX_RECOMMENDATIONS_LENGTH = 6;
+    const RECOMMENDATION_TYPE = RECIPE_TYPE === 'meals' ? 'drinks' : 'meals';
+
+    fetchMealsOrDrinks('', 'name', RECOMMENDATION_TYPE)
+      .then((data) => {
+        if (data[RECOMMENDATION_TYPE] !== null) {
+          setRecommendations(data[RECOMMENDATION_TYPE]
+            .filter((_item, index) => index < MAX_RECOMMENDATIONS_LENGTH));
+        }
+      });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    const storedFavoriteRecipes = JSON.parse(localStorage.getItem('favoriteRecipes'));
+    setRecipeIsFavorite(storedFavoriteRecipes?.some((recipe) => (recipe.id === id)));
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    const storedRecipesCompleted = JSON.parse(localStorage.getItem('doneRecipes'));
+    const storedRecipesInProgress = JSON.parse(localStorage.getItem('inProgressRecipes'));
+
+    setStartRecipe(!storedRecipesCompleted?.some((e) => e.id === id));
+    setRecipeInProgress(
+      storedRecipesInProgress?.cocktails[id] || storedRecipesInProgress?.meals[id],
+    );
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleFavorite = () => {
-    const getFavoriteRecipes = JSON.parse(localStorage.getItem('favoriteRecipes'));
+    const storedFavoriteRecipes = JSON.parse(localStorage.getItem('favoriteRecipes'));
 
-    const localStorageFavorite = {
+    const recipeDetailsToStore = {
       id,
-      type: history.location.pathname.match(/foods\//i) ? 'food' : 'drink',
+      type: pathname.match(/foods\//i) ? 'food' : 'drink',
       nationality: recipeDetails.strArea || '',
       category: recipeDetails.strCategory || '',
       alcoholicOrNot: recipeDetails.strAlcoholic || '',
       name: recipeDetails.strMeal || recipeDetails.strDrink,
       image: recipeDetails.strMealThumb || recipeDetails.strDrinkThumb,
     };
-    setBtnFavorite(!btnFavorite);
-    if (getFavoriteRecipes) {
-      const updateLocal = getFavoriteRecipes?.some((recipe) => recipe.id === id);
-      if (updateLocal) {
-        return localStorage
-          .setItem('favoriteRecipes', JSON.stringify([...getFavoriteRecipes
-            .filter((recipe) => (
-              recipe.id !== id
-            )),
-          ]));
+
+    setRecipeIsFavorite(!recipeIsFavorite);
+
+    if (storedFavoriteRecipes) {
+      const thisRecipeIsStored = storedFavoriteRecipes
+        ?.some((recipe) => recipe.id === id);
+
+      if (thisRecipeIsStored) {
+        return localStorage.setItem(
+          'favoriteRecipes',
+          JSON.stringify(
+            [...storedFavoriteRecipes.filter((recipe) => (recipe.id !== id))],
+          ),
+        );
       }
-      return localStorage
-        .setItem('favoriteRecipes', JSON.stringify([...getFavoriteRecipes,
-          localStorageFavorite]));
-    } localStorage.setItem('favoriteRecipes', JSON.stringify([localStorageFavorite]));
+
+      return localStorage.setItem(
+        'favoriteRecipes',
+        JSON.stringify([...storedFavoriteRecipes, recipeDetailsToStore]),
+      );
+    }
+
+    localStorage.setItem('favoriteRecipes', JSON.stringify([recipeDetailsToStore]));
   };
 
   return (
-    <div>
+    <main>
       { recipeDetails && (
         <div>
           <h1>RecipeDetails</h1>
           <button
-            onClick={ () => { copy(window.location.href); setBtnShare(true); } }
+            onClick={ () => { copy(window.location.href); setShareRecipe(true); } }
             type="button"
             data-testid="share-btn"
           >
             Compartilhar
-            {' '}
-
           </button>
-          {btnShare && <span>Link copied!</span>}
+
+          { shareRecipe && <span>Link copied!</span> }
 
           <button
             onClick={ handleFavorite }
             type="button"
             data-testid="favorite-btn"
-            src={ btnFavorite ? blackHeart : whiteHeart }
+            src={ recipeIsFavorite ? blackHeart : whiteHeart }
           >
-            Favoritar
-            {btnFavorite ? (
-              <img src={ blackHeart } alt="coração preenchido" />
-            )
-              : (
-                <img src={ whiteHeart } alt="coração vazio" />
-              )}
-
+            { recipeIsFavorite
+              ? <img src={ blackHeart } alt="coração preenchido" />
+              : <img src={ whiteHeart } alt="coração vazio" /> }
           </button>
 
           <img
@@ -162,7 +179,7 @@ function RecipeDetails() {
             /> }
 
           <section className="recommendations">
-            {recommendations
+            { recommendations
               .map((recommendation, index) => (
                 <div
                   key={ index }
@@ -171,32 +188,32 @@ function RecipeDetails() {
                   <p data-testid={ `${index}-recomendation-title` }>
                     { recommendation.strMeal || recommendation.strDrink }
                   </p>
+
                   <img
-                    src={ recommendation.strMealThumb
-                     || recommendation.strDrinkThumb }
-                    alt="recomendation"
+                    src={ recommendation.strMealThumb || recommendation.strDrinkThumb }
+                    alt="recommendation"
                   />
                 </div>
               )) }
           </section>
         </div>
       ) }
-      {btnStartRecipe
-      && (
-        <button
-          className="btn-startRecipe"
-          data-testid="start-recipe-btn"
-          type="button"
-          onClick={ () => history.push(
-            history.location.pathname.includes('foods')
-              ? `/foods/${id}/in-progress`
-              : `/drinks/${id}/in-progress`,
-          ) }
-        >
-          {btnInProgress ? 'Continue Recipe' : 'Start Recipe'}
-        </button>
-      )}
-    </div>
+
+      { startRecipe
+        && (
+          <button
+            className="btn-startRecipe"
+            data-testid="start-recipe-btn"
+            type="button"
+            onClick={ () => history.push(
+              RECIPE_TYPE === 'meals'
+                ? `/foods/${id}/in-progress` : `/drinks/${id}/in-progress`,
+            ) }
+          >
+            { recipeInProgress ? 'Continue Recipe' : 'Start Recipe' }
+          </button>
+        ) }
+    </main>
   );
 }
 
