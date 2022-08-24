@@ -1,18 +1,75 @@
 import React, { useEffect, useState } from 'react';
-import { useHistory } from 'react-router-dom';
+import { useHistory, useParams } from 'react-router-dom';
 import fetchRecipeDetails from '../services/fetchRecipeDetails';
 
 function RecipeInProgress() {
   const history = useHistory();
   const [ingredients, setIngredients] = useState([]);
   const [startedRecipe, setStartedRecipe] = useState([]);
+  const [ingredientsChecked, setIngredientsChecked] = useState([]);
+  const { id } = useParams();
+  const recipeType = history.location.pathname.match(/foods\//i) ? 'meals' : 'cocktails';
+
+  const updateState = () => {
+    const getInProgressRecipes = JSON.parse(localStorage.getItem('inProgressRecipes'));
+    const ingredientes = getInProgressRecipes[recipeType][id];
+    if (ingredientes) setIngredientsChecked(ingredientes);
+  };
+
+  const saveCheck = (ingredient) => {
+    const getInProgressRecipes = JSON.parse(localStorage.getItem('inProgressRecipes'));
+    console.log(getInProgressRecipes[recipeType][id]);
+    if (getInProgressRecipes[recipeType][id]) {
+      let arrayIngredients = getInProgressRecipes[recipeType][id];
+      const result = arrayIngredients.some((i) => i === ingredient);
+      if (result) {
+        arrayIngredients = arrayIngredients.filter((i) => i !== ingredient);
+      } else {
+        arrayIngredients.push(ingredient);
+      }
+      localStorage.setItem('inProgressRecipes', JSON.stringify({
+        ...getInProgressRecipes,
+        [recipeType]: {
+          ...getInProgressRecipes[recipeType],
+          [id]: arrayIngredients,
+        },
+      }));
+      return updateState();
+    }
+    localStorage.setItem('inProgressRecipes', JSON.stringify({
+      ...getInProgressRecipes,
+      [recipeType]: {
+        ...getInProgressRecipes[recipeType],
+        [id]: [ingredient],
+      },
+    }));
+    updateState();
+  };
 
   useEffect(() => {
-    const recipeType = history.location.pathname.match(/foods\//i) ? 'meals' : 'drinks';
-    const idPath = history.location.pathname.split('/')[2];
-    fetchRecipeDetails(idPath, recipeType)
+    const getInProgressRecipes = JSON.parse(localStorage.getItem('inProgressRecipes'));
+    if (getInProgressRecipes === null) {
+      localStorage.setItem('inProgressRecipes', JSON.stringify({
+        cocktails: {},
+        meals: {},
+      }));
+    }
+    updateState();
+  }, []);
+
+  useEffect(() => {
+    const getInProgressRecipes = JSON.parse(localStorage.getItem('inProgressRecipes'));
+    if (getInProgressRecipes === null) {
+      localStorage.setItem('inProgressRecipes', JSON.stringify({
+        cocktails: {},
+        meals: {},
+      }));
+    }
+    const type = recipeType === 'cocktails' ? 'drinks' : 'meals';
+    fetchRecipeDetails(id, type)
       .then((data) => {
-        const recipe = data[recipeType] ? data[recipeType][0] : {};
+        console.log(type);
+        const recipe = data[type] ? data[type][0] : {};
 
         const ingredientKeys = Object.keys(recipe)
           .filter((key) => key.match(/strIngredient/i) && recipe[key]);
@@ -47,13 +104,17 @@ function RecipeInProgress() {
         {startedRecipe.strCategory}
       </p>
       { ingredients.map((ingredient, index) => (
-        <label key={ index } data-testid={ `${index}-ingredient-step` } htmlFor="teste">
-          <h5>
-            {ingredient}
-          </h5>
+        <label
+          key={ index }
+          data-testid={ `${index}-ingredient-step` }
+          htmlFor={ ingredient }
+        >
+          {ingredient}
           <input
-            id="teste"
+            id={ ingredient }
             type="checkbox"
+            onChange={ () => saveCheck(ingredient) }
+            checked={ ingredientsChecked.includes(ingredient) }
           />
         </label>
       )) }
