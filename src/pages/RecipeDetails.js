@@ -5,6 +5,8 @@ import copy from 'clipboard-copy';
 import fetchRecipeDetails from '../services/fetchRecipeDetails';
 import fetchMealsOrDrinks from '../services/fetchMealsOrDrinks';
 import '../assets/css/RecipeDetails.css';
+import whiteHeart from '../images/whiteHeartIcon.svg';
+import blackHeart from '../images/blackHeartIcon.svg';
 
 function RecipeDetails() {
   const history = useHistory();
@@ -16,6 +18,7 @@ function RecipeDetails() {
   const [btnStartRecipe, setBtnStartRecipe] = useState(true);
   const [btnInProgress, setBtnInProgress] = useState(true);
   const [btnShare, setBtnShare] = useState(false);
+  const [btnFavorite, setBtnFavorite] = useState(false);
 
   useEffect(() => {
     const recipeType = history.location.pathname.match(/foods\//i) ? 'meals' : 'drinks';
@@ -49,13 +52,16 @@ function RecipeDetails() {
   }, [id]);
 
   useEffect(() => {
+    const getFavoriteRecipes = JSON.parse(localStorage.getItem('favoriteRecipes'));
+    setBtnFavorite(getFavoriteRecipes?.some((recipe) => (recipe.id === id)));
+  }, []);
+
+  useEffect(() => {
     const doneRecipes = JSON.parse(localStorage.getItem('doneRecipes'));
     const inProgress = JSON.parse(localStorage.getItem('inProgressRecipes'));
-    console.log(!btnStartRecipe);
     setBtnInProgress(inProgress?.cocktails[id] || inProgress?.meals[id]);
     setBtnStartRecipe(!doneRecipes?.some((e) => e.id === id));
   }, [btnStartRecipe, btnInProgress, id]);
-  console.log(recipeDetails);
   const handleFavorite = () => {
     const getFavoriteRecipes = JSON.parse(localStorage.getItem('favoriteRecipes'));
 
@@ -68,7 +74,17 @@ function RecipeDetails() {
       name: recipeDetails.strMeal || recipeDetails.strDrink,
       image: recipeDetails.strMealThumb || recipeDetails.strDrinkThumb,
     };
+    setBtnFavorite(!btnFavorite);
     if (getFavoriteRecipes) {
+      const updateLocal = getFavoriteRecipes?.some((recipe) => recipe.id === id);
+      if (updateLocal) {
+        return localStorage
+          .setItem('favoriteRecipes', JSON.stringify([...getFavoriteRecipes
+            .filter((recipe) => (
+              recipe.id !== id
+            )),
+          ]));
+      }
       return localStorage
         .setItem('favoriteRecipes', JSON.stringify([...getFavoriteRecipes,
           localStorageFavorite]));
@@ -95,9 +111,15 @@ function RecipeDetails() {
             onClick={ handleFavorite }
             type="button"
             data-testid="favorite-btn"
+            src={ btnFavorite ? blackHeart : whiteHeart }
           >
             Favoritar
-            {' '}
+            {btnFavorite ? (
+              <img src={ blackHeart } alt="coração preenchido" />
+            )
+              : (
+                <img src={ whiteHeart } alt="coração vazio" />
+              )}
 
           </button>
 
