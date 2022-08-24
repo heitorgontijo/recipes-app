@@ -47,9 +47,15 @@ function RecipeInProgress() {
         {startedRecipe.strCategory}
       </p>
       { ingredients.map((ingredient, index) => (
-        <h1 key={ index } data-testid={ `${index}-ingredient-step` }>
-          {ingredient}
-        </h1>
+        <label key={ index } data-testid={ `${index}-ingredient-step` } htmlFor="teste">
+          <h5>
+            {ingredient}
+          </h5>
+          <input
+            id="teste"
+            type="checkbox"
+          />
+        </label>
       )) }
 
       <p data-testid="instructions">{startedRecipe.strInstructions}</p>
