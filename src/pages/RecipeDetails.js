@@ -62,6 +62,7 @@ function RecipeDetails() {
     setBtnInProgress(inProgress?.cocktails[id] || inProgress?.meals[id]);
     setBtnStartRecipe(!doneRecipes?.some((e) => e.id === id));
   }, [btnStartRecipe, btnInProgress, id]);
+
   const handleFavorite = () => {
     const getFavoriteRecipes = JSON.parse(localStorage.getItem('favoriteRecipes'));
 

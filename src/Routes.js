@@ -7,6 +7,7 @@ import Profile from './pages/Profile';
 import FavoriteRecipes from './pages/FavoriteRecipes';
 import DoneRecipes from './pages/DoneRecipes';
 import RecipeDetails from './pages/RecipeDetails';
+import RecipeInProgress from './pages/RecipeInProgress';
 
 export default () => (
   <Switch>
@@ -18,5 +19,7 @@ export default () => (
     <Route path="/profile" exact component={ Profile } />
     <Route path="/done-recipes" exact component={ DoneRecipes } />
     <Route path="/favorite-recipes" exact component={ FavoriteRecipes } />
+    <Route path="/drinks/:id/in-progress" exact component={ RecipeInProgress } />
+    <Route path="/foods/:id/in-progress" exact component={ RecipeInProgress } />
   </Switch>
 );
