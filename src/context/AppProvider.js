@@ -11,7 +11,6 @@ function AppProvider({ children }) {
   const [search, setSearch] = useState('');
   const [searchFilter, setSearchFilter] = useState('');
   const [filteredByToggle, setFilteredByToggle] = useState(false);
-
   const ALERT_OF_EMPTY_RESPONSE = 'Sorry, we haven\'t found any '
     + 'recipes for these filters.';
 
