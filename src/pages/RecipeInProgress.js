@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { useHistory, useParams } from 'react-router-dom';
+import copy from 'clipboard-copy';
 import fetchRecipeDetails from '../services/fetchRecipeDetails';
+import whiteHeart from '../images/whiteHeartIcon.svg';
+import blackHeart from '../images/blackHeartIcon.svg';
 
 function RecipeInProgress() {
   const history = useHistory();
@@ -9,6 +12,8 @@ function RecipeInProgress() {
   const [ingredientsChecked, setIngredientsChecked] = useState([]);
   const { id } = useParams();
   const recipeType = history.location.pathname.match(/foods\//i) ? 'meals' : 'cocktails';
+  const [shareRecipe, setShareRecipe] = useState(false);
+  const [recipeIsFavorite, setRecipeIsFavorite] = useState(false);
 
   const updateState = () => {
     const getInProgressRecipes = JSON.parse(localStorage.getItem('inProgressRecipes'));
@@ -58,6 +63,12 @@ function RecipeInProgress() {
   }, []);
 
   useEffect(() => {
+    const storedFavoriteRecipes = JSON.parse(localStorage.getItem('favoriteRecipes'));
+    setRecipeIsFavorite(storedFavoriteRecipes?.some((recipe) => (recipe.id === id)));
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
     const getInProgressRecipes = JSON.parse(localStorage.getItem('inProgressRecipes'));
     if (getInProgressRecipes === null) {
       localStorage.setItem('inProgressRecipes', JSON.stringify({
@@ -83,6 +94,42 @@ function RecipeInProgress() {
       });
   }, []);
 
+  const handleFavorite = () => {
+    const storedFavoriteRecipes = JSON.parse(localStorage.getItem('favoriteRecipes'));
+
+    const recipeDetailsToStore = {
+      id,
+      type: recipeType === 'meals' ? 'food' : 'drink',
+      nationality: startedRecipe.strArea || '',
+      category: startedRecipe.strCategory || '',
+      alcoholicOrNot: startedRecipe.strAlcoholic || '',
+      name: startedRecipe.strMeal || startedRecipe.strDrink,
+      image: startedRecipe.strMealThumb || startedRecipe.strDrinkThumb,
+    };
+    setRecipeIsFavorite(!recipeIsFavorite);
+
+    if (storedFavoriteRecipes) {
+      const thisRecipeIsStored = storedFavoriteRecipes
+        ?.some((recipe) => recipe.id === id);
+
+      if (thisRecipeIsStored) {
+        return localStorage.setItem(
+          'favoriteRecipes',
+          JSON.stringify(
+            [...storedFavoriteRecipes.filter((recipe) => (recipe.id !== id))],
+          ),
+        );
+      }
+
+      return localStorage.setItem(
+        'favoriteRecipes',
+        JSON.stringify([...storedFavoriteRecipes, recipeDetailsToStore]),
+      );
+    }
+
+    localStorage.setItem('favoriteRecipes', JSON.stringify([recipeDetailsToStore]));
+  };
+
   //   if (!startedRecipe) return <h1>Carregando...</h1>;
   return (
     <>
@@ -97,8 +144,32 @@ function RecipeInProgress() {
         alt={ startedRecipe.strMeal
             || startedRecipe.strDrink }
       />
-      <buttom data-testid="share-btn" type="buttom">Compartilhar</buttom>
-      <buttom data-testid="favorite-btn" type="buttom">Favoritar</buttom>
+
+      <button
+        onClick={ () => {
+          copy(window.location.href
+            .replace('/in-progress', '')); setShareRecipe(true);
+        } }
+        type="button"
+        data-testid="share-btn"
+      >
+        Compartilhar
+      </button>
+
+      { shareRecipe && <span>Link copied!</span> }
+
+      <button
+        onClick={ handleFavorite }
+        type="button"
+        data-testid="favorite-btn"
+        src={ recipeIsFavorite ? blackHeart : whiteHeart }
+      >
+        Favoritar
+        { recipeIsFavorite
+          ? <img src={ blackHeart } alt="coração preenchido" />
+          : <img src={ whiteHeart } alt="coração vazio" /> }
+      </button>
+
       <p data-testid="recipe-category">
         {' '}
         {startedRecipe.strCategory}
@@ -120,7 +191,7 @@ function RecipeInProgress() {
       )) }
 
       <p data-testid="instructions">{startedRecipe.strInstructions}</p>
-      <buttom data-testid="finish-recipe-btn" type="buttom">Finalizar Receita</buttom>
+      <button data-testid="finish-recipe-btn" type="button">Finalizar Receita</button>
     </>
   );
 }
