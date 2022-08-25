@@ -94,6 +94,23 @@ function RecipeInProgress() {
       });
   }, []);
 
+  useEffect(() => {
+    const doneRecipes = JSON.parse(localStorage.getItem('doneRecipes'));
+    if (doneRecipes === null) {
+      localStorage.setItem('doneRecipes', JSON.stringify({
+        id: {},
+        type: {},
+        nationality: {},
+        category: {},
+        alcoholicOrNot: {},
+        name: {},
+        image: {},
+        doneDate: {},
+        tags: {},
+      }));
+    }
+  }, []);
+
   const handleFavorite = () => {
     const storedFavoriteRecipes = JSON.parse(localStorage.getItem('favoriteRecipes'));
 
@@ -130,7 +147,30 @@ function RecipeInProgress() {
     localStorage.setItem('favoriteRecipes', JSON.stringify([recipeDetailsToStore]));
   };
 
-  //   if (!startedRecipe) return <h1>Carregando...</h1>;
+  const doneRecipeStorage = () => {
+    const doneRecipes = JSON.parse(localStorage.getItem('doneRecipes'));
+
+    const doneRecipe = {
+      id,
+      type: recipeType,
+      nationality: startedRecipe.strArea,
+      category: startedRecipe.strCategory ? startedRecipe.strCategory : '',
+      alcoholicOrNot: startedRecipe.strAlcoholic ? startedRecipe.strAlcoholic : '',
+      name: recipeType === 'meals' ? startedRecipe.strMeal : startedRecipe.strDrink,
+      image: recipeType === 'meals'
+        ? startedRecipe.strMealThumb : startedRecipe.strDrinkThumb,
+      doneDate: new Date().toLocaleDateString(),
+      tags: startedRecipe.strTags || [],
+    };
+    console.log([...doneRecipes]);
+
+    localStorage.setItem('doneRecipes', JSON.stringify(
+      [...doneRecipes, doneRecipe],
+    ));
+    history.push('/done-recipes');
+  };
+  console.log(startedRecipe);
+
   return (
     <>
       <h1 data-testid="recipe-title">
@@ -191,7 +231,15 @@ function RecipeInProgress() {
       )) }
 
       <p data-testid="instructions">{startedRecipe.strInstructions}</p>
-      <button data-testid="finish-recipe-btn" type="button">Finalizar Receita</button>
+      <button
+        disabled={ ingredients.length !== ingredientsChecked.length }
+        data-testid="finish-recipe-btn"
+        type="button"
+        onClick={ doneRecipeStorage }
+      >
+        Finalizar Receita
+
+      </button>
     </>
   );
 }
