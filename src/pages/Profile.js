@@ -9,14 +9,14 @@ function Profile() {
 
   useEffect(() => {
     const getEmail = JSON.parse(localStorage.getItem('user'));
-    setEmail(getEmail.email);
-    console.log(email);
+    if (getEmail) setEmail(getEmail.email);
   }, [email]);
 
   const logoutBtn = () => {
     localStorage.clear();
     history.push('/');
   };
+
   return (
     <div>
       <Header />

@@ -1,9 +1,12 @@
 import React from 'react';
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-// import copy from 'clipboard-copy';
 
 jest.mock('clipboard-copy');
+jest.mock('react-router-dom', () => ({
+  ...jest.requireActual('react-router-dom'),
+  useParams: () => ({ id: '52977' }),
+}));
 
 import renderWithHistoryAndContext from './helpers/renderWithHistoryAndContext';
 import mealsMock from './mocks/mealsMock';
@@ -94,7 +97,7 @@ describe('Testa funcionamento do componente Recipe Details', () => {
       renderWithHistoryAndContext(<RecipeDetails />, '/foods/52977');
       await waitFor(() => expect(fetch).toHaveBeenCalledTimes(2));
 
-      expect(JSON.parse(localStorage.getItem('favoriteRecipes'))).toBe(null);
+      expect(JSON.parse(localStorage.getItem('favoriteRecipes'))).toEqual([]);
       expect(screen.getByAltText('coração vazio')).toBeInTheDocument();
 
       userEvent.click(screen.getByTestId('favorite-btn'));
@@ -120,7 +123,7 @@ describe('Testa funcionamento do componente Recipe Details', () => {
       renderWithHistoryAndContext(<RecipeDetails />, '/drinks/15997');
       await waitFor(() => expect(fetch).toHaveBeenCalledTimes(2));
 
-      expect(JSON.parse(localStorage.getItem('favoriteRecipes'))).toBe(null);
+      expect(JSON.parse(localStorage.getItem('favoriteRecipes'))).toEqual([]);
       expect(screen.getByAltText('coração vazio')).toBeInTheDocument();
 
       userEvent.click(screen.getByTestId('favorite-btn'));
@@ -161,5 +164,15 @@ describe('Testa funcionamento do componente Recipe Details', () => {
 
       userEvent.click(screen.getByTestId('share-btn'));
       expect(screen.getByText('Link copied!')).toBeInTheDocument();
+  });
+
+  it('Verifica se o botão de favoritar está colorido quando a receita é '
+    + 'favorita', async() => {    
+      localStorage.setItem('favoriteRecipes', JSON.stringify([{ id: '52977' }]));
+      
+      renderWithHistoryAndContext(<RecipeDetails />, '/foods/52977');
+      await waitFor(() => expect(fetch).toHaveBeenCalledTimes(2));
+
+      expect(screen.getByAltText('coração preenchido')).toBeInTheDocument();
   });
 });

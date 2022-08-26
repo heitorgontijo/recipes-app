@@ -1,9 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import { useHistory, useParams } from 'react-router-dom';
 import copy from 'clipboard-copy';
 
 import fetchRecipeDetails from '../services/fetchRecipeDetails';
 import fetchMealsOrDrinks from '../services/fetchMealsOrDrinks';
+
+import AppContext from '../context/AppContext';
 
 import whiteHeart from '../images/whiteHeartIcon.svg';
 import blackHeart from '../images/blackHeartIcon.svg';
@@ -14,6 +16,8 @@ function RecipeDetails() {
   const history = useHistory();
   const { location: { pathname } } = history;
   const { id } = useParams();
+
+  const { favoriteRecipe } = useContext(AppContext);
 
   const [recipeDetails, setRecipeDetails] = useState(null);
   const [ingredients, setIngredients] = useState([]);
@@ -28,21 +32,19 @@ function RecipeDetails() {
   useEffect(() => {
     fetchRecipeDetails(id, RECIPE_TYPE)
       .then((data) => {
-        if (data[RECIPE_TYPE]) {
-          const recipe = data[RECIPE_TYPE][0];
+        const recipe = data[RECIPE_TYPE][0];
 
-          const ingredientKeys = Object.keys(recipe)
-            .filter((key) => key.match(/strIngredient/i) && recipe[key]);
+        const ingredientKeys = Object.keys(recipe)
+          .filter((key) => key.match(/strIngredient/i) && recipe[key]);
 
-          const measureKeys = Object.keys(recipe)
-            .filter((key) => key.match(/strMeasure/i) && recipe[key]);
+        const measureKeys = Object.keys(recipe)
+          .filter((key) => key.match(/strMeasure/i) && recipe[key]);
 
-          setRecipeDetails(recipe);
-          setIngredients(ingredientKeys
-            .map((key, index) => (
-              `${recipe[key]} ${recipe[measureKeys[index]] || ''}`
-            )));
-        }
+        setRecipeDetails(recipe);
+        setIngredients(ingredientKeys
+          .map((key, index) => (
+            `${recipe[key]} ${recipe[measureKeys[index]] || ''}`
+          )));
       });
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -53,10 +55,9 @@ function RecipeDetails() {
 
     fetchMealsOrDrinks('', 'name', RECOMMENDATION_TYPE)
       .then((data) => {
-        if (data[RECOMMENDATION_TYPE] !== null) {
-          setRecommendations(data[RECOMMENDATION_TYPE]
-            .filter((_item, index) => index < MAX_RECOMMENDATIONS_LENGTH));
-        }
+        const recommendationsFromApi = data[RECOMMENDATION_TYPE];
+        setRecommendations(recommendationsFromApi
+          .filter((_item, index) => index < MAX_RECOMMENDATIONS_LENGTH));
       });
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -68,13 +69,10 @@ function RecipeDetails() {
   }, []);
 
   useEffect(() => {
-    const storedRecipesCompleted = JSON.parse(localStorage.getItem('doneRecipes'));
     const storedRecipesInProgress = JSON.parse(localStorage.getItem('inProgressRecipes'));
-    console.log(storedRecipesCompleted);
-    if (storedRecipesCompleted === null) {
-      setStartRecipe(!storedRecipesCompleted?.some((e) => e.id === id));
-    } else { setStartRecipe(![storedRecipesCompleted]?.some((e) => e.id === id)); }
+    const storedRecipesCompleted = JSON.parse(localStorage.getItem('doneRecipes'));
 
+    setStartRecipe(!storedRecipesCompleted?.some((stored) => stored.id === id));
     setRecipeInProgress(
       storedRecipesInProgress?.cocktails[id] || storedRecipesInProgress?.meals[id],
     );
@@ -82,40 +80,9 @@ function RecipeDetails() {
   }, []);
 
   const handleFavorite = () => {
-    const storedFavoriteRecipes = JSON.parse(localStorage.getItem('favoriteRecipes'));
-
-    const recipeDetailsToStore = {
-      id,
-      type: pathname.match(/foods\//i) ? 'food' : 'drink',
-      nationality: recipeDetails.strArea || '',
-      category: recipeDetails.strCategory || '',
-      alcoholicOrNot: recipeDetails.strAlcoholic || '',
-      name: recipeDetails.strMeal || recipeDetails.strDrink,
-      image: recipeDetails.strMealThumb || recipeDetails.strDrinkThumb,
-    };
-
+    const type = RECIPE_TYPE === 'meals' ? 'food' : 'drink';
+    favoriteRecipe(recipeDetails, type);
     setRecipeIsFavorite(!recipeIsFavorite);
-
-    if (storedFavoriteRecipes) {
-      const thisRecipeIsStored = storedFavoriteRecipes
-        ?.some((recipe) => recipe.id === id);
-
-      if (thisRecipeIsStored) {
-        return localStorage.setItem(
-          'favoriteRecipes',
-          JSON.stringify(
-            [...storedFavoriteRecipes.filter((recipe) => (recipe.id !== id))],
-          ),
-        );
-      }
-
-      return localStorage.setItem(
-        'favoriteRecipes',
-        JSON.stringify([...storedFavoriteRecipes, recipeDetailsToStore]),
-      );
-    }
-
-    localStorage.setItem('favoriteRecipes', JSON.stringify([recipeDetailsToStore]));
   };
 
   return (

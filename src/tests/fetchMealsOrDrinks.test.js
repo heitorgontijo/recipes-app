@@ -8,7 +8,7 @@ describe('Teste da função "fetchMealsOrDrinks"', () => {
   });
 
   it('Verifica se o fetch está sendo chamado', () => {
-    fetchMealsOrDrinks('m', 'first-letter', 'meals');
+    fetchMealsOrDrinks('meal', 'category', 'meals');
     expect(fetch).toHaveBeenCalledTimes(1);
   });
 
@@ -36,6 +36,9 @@ describe('Teste da função "fetchMealsOrDrinks"', () => {
 
     fetchMealsOrDrinks('bebidaDeTeste', 'ingredient', 'drinks');
     expect(fetch).toHaveBeenCalledWith(ingredientFilter);
+
+    const categoryFilter = 'https://www.themealdb.com/api/json/v1/1/search'
+      + 'filter.php?c=comidaDeTeste';
 
     expect(fetch).toHaveBeenCalledTimes(4);
   });
