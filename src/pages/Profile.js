@@ -12,46 +12,40 @@ function Profile() {
     if (getEmail) setEmail(getEmail.email);
   }, [email]);
 
-  const logoutBtn = () => {
-    localStorage.clear();
-    history.push('/');
-  };
+  const logoutBtn = () => { localStorage.clear(); history.push('/'); };
 
   return (
-    <div>
+    <main>
       <Header />
-      Profile
+
       <p data-testid="profile-email">{ email }</p>
+
       <button
-        onClick={
-          () => history.push('/done-recipes')
-        }
+        onClick={ () => history.push('/done-recipes') }
         type="button"
         data-testid="profile-done-btn"
       >
         Done Recipes
-
       </button>
+
       <button
-        onClick={
-          () => history.push('/favorite-recipes')
-        }
+        onClick={ () => history.push('/favorite-recipes') }
         type="button"
         data-testid="profile-favorite-btn"
       >
         Favorite Recipes
-
       </button>
+
       <button
         onClick={ logoutBtn }
         type="button"
         data-testid="profile-logout-btn"
       >
         Logout
-
       </button>
+
       <Footer />
-    </div>
+    </main>
   );
 }
 

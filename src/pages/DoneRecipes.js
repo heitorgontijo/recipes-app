@@ -1,25 +1,26 @@
 import React, { useState, useEffect } from 'react';
-import copy from 'clipboard-copy';
 import { useHistory } from 'react-router-dom';
+import copy from 'clipboard-copy';
+
 import Header from '../components/Header';
+
+import '../assets/css/DoneRecipes.css';
 
 function DoneRecipes() {
   const history = useHistory();
+
   const [completedRecipes, setCompletedRecipes] = useState([]);
   const [shareRecipe, setShareRecipe] = useState(false);
   const [filter, setFilter] = useState('');
-
-  const url = (recipe) => {
-    const address = recipe.type === 'food' ? 'foods' : 'drinks';
-    console.log(`/${address}/${recipe.id}`);
-    return history
-      .push(`${address}/${recipe.id}`);
-  };
 
   useEffect(() => {
     const storedCompletedRecipes = JSON.parse(localStorage.getItem('doneRecipes'));
     setCompletedRecipes(storedCompletedRecipes || []);
   }, []);
+
+  const goToRecipeDetails = (recipe) => {
+    history.push(`${recipe.type}s/${recipe.id}`);
+  };
 
   return (
     <div>
@@ -31,54 +32,52 @@ function DoneRecipes() {
         onClick={ () => setFilter('') }
       >
         All
-
       </button>
+
       <button
         type="button"
         data-testid="filter-by-food-btn"
         onClick={ () => setFilter('food') }
       >
         Food
-
       </button>
+
       <button
         type="button"
         data-testid="filter-by-drink-btn"
         onClick={ () => setFilter('drink') }
       >
         Drink
-
       </button>
+
+      { shareRecipe && <span>Link copied!</span> }
 
       { completedRecipes
         .filter((recipe) => recipe.type.includes(filter))
         .map((recipe, index) => (
           <div key={ index }>
             <button
+              className="done"
+              onClick={ () => goToRecipeDetails(recipe) }
               type="button"
-              onClick={ () => history.push('/foods/52771') }
-              src={ recipe.image }
               data-testid={ `${index}-horizontal-image` }
+              src={ recipe.image }
             >
-              <img
-                src={ recipe.image }
-                alt="outra coisa"
-              />
+              <img src={ recipe.image } alt="outra coisa" />
             </button>
 
             <h3 data-testid={ `${index}-horizontal-top-text` }>
-              { recipe.alcoholicOrNot !== '' ? recipe.alcoholicOrNot
+              { recipe.alcoholicOrNot !== ''
+                ? recipe.alcoholicOrNot
                 : `${recipe.nationality} - ${recipe.category}` }
             </h3>
 
             <button
-              onClick={ () => url(recipe) }
-              type="button"
               data-testid={ `${index}-horizontal-name` }
+              onClick={ () => goToRecipeDetails(recipe) }
+              type="button"
             >
-              <h2>
-                { recipe.name }
-              </h2>
+              <h2>{ recipe.name }</h2>
             </button>
 
             <p data-testid={ `${index}-horizontal-done-date` }>
@@ -90,16 +89,14 @@ function DoneRecipes() {
               data-testid={ `${index}-horizontal-share-btn` }
               src="shareIcon"
               onClick={ () => {
-                const address = recipe.type === 'food' ? 'foods' : 'drinks';
-                copy(
-                  `${window
-                    .location.href.replace('done-recipes', '')}${address}/${recipe.id}`,
-                ); setShareRecipe(true);
+                copy(`${window.location.href
+                  .replace('done-recipes', '')}${recipe.type}s/${recipe.id}`);
+                setShareRecipe(true);
               } }
             >
               O elemento de compartilhar a receita
             </button>
-            { shareRecipe && <span>Link copied!</span> }
+
             { recipe.tags.map((tag) => (
               <span
                 key={ tag }
@@ -110,8 +107,6 @@ function DoneRecipes() {
             )) }
           </div>
         )) }
-
-      DoneRecipes
     </div>
   );
 }
