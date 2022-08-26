@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import copy from 'clipboard-copy';
+import { useHistory } from 'react-router-dom';
 import Header from '../components/Header';
 import blackHeart from '../images/blackHeartIcon.svg';
 
@@ -8,8 +9,13 @@ function FavoriteRecipes() {
   const [filter, setFilter] = useState('');
   const [favorite, setFavorite] = useState([]);
 
+  const history = useHistory();
+
   useEffect(() => {
-    setFavorite(JSON.parse(localStorage.getItem('favoriteRecipes')));
+    const favoriteStorage = JSON.parse(localStorage.getItem('favoriteRecipes'));
+    if (favoriteStorage) {
+      setFavorite(JSON.parse(localStorage.getItem('favoriteRecipes')));
+    }
   }, []);
   // const favorite = JSON.parse(localStorage.getItem('favoriteRecipes'));
 
@@ -18,6 +24,10 @@ function FavoriteRecipes() {
     console.log(idFilter);
     localStorage.setItem('favoriteRecipes', JSON.stringify([...idFilter]));
     setFavorite(idFilter);
+  };
+
+  const goToRecipeDetails = (recipe) => {
+    history.push(`/${recipe.type}s/${recipe.id}`);
   };
 
   return (
@@ -52,34 +62,45 @@ function FavoriteRecipes() {
         .filter((recipe) => recipe.type.includes(filter))
         .map((recipe, index) => (
           <div key={ recipe.id }>
-            <img
+
+            <button
+              className="done"
+              onClick={ () => goToRecipeDetails(recipe) }
+              type="button"
               data-testid={ `${index}-horizontal-image` }
               src={ recipe.image }
-              alt={ recipe.name }
-            />
+            >
+              <img src={ recipe.image } alt={ recipe.name } />
+            </button>
             <h3 data-testid={ `${index}-horizontal-top-text` }>
               { recipe.alcoholicOrNot !== '' ? recipe.alcoholicOrNot
                 : `${recipe.nationality} - ${recipe.category}` }
             </h3>
-            <h4 data-testid={ `${index}-horizontal-name` }>
-              {recipe.name}
-            </h4>
+            <button
+              data-testid={ `${index}-horizontal-name` }
+              type="button"
+              onClick={ () => goToRecipeDetails(recipe) }
+            >
+              <h4>
+                {recipe.name}
+              </h4>
+
+            </button>
+
             <button
               type="button"
               data-testid={ `${index}-horizontal-share-btn` }
               src="shareIcon"
               onClick={ () => {
-                const address = recipe.type === 'food' ? 'foods' : 'drinks';
                 copy(
                   `${window
                     .location
-                    .href.replace('favorite-recipes', '')}${address}/${recipe.id}`,
+                    .href.replace('favorite-recipes', '')}${recipe.type}s/${recipe.id}`,
                 ); setShareRecipe(true);
               } }
             >
               O elemento de compartilhar a receita
             </button>
-            { shareRecipe && <span>Link copied!</span> }
 
             <button
               onClick={ () => handleFavorite(recipe.id) }
@@ -91,6 +112,7 @@ function FavoriteRecipes() {
             </button>
           </div>
         ))}
+      { shareRecipe && <span>Link copied!</span> }
 
     </div>
   );

@@ -63,7 +63,7 @@ function DoneRecipes() {
               data-testid={ `${index}-horizontal-image` }
               src={ recipe.image }
             >
-              <img src={ recipe.image } alt="outra coisa" />
+              <img src={ recipe.image } alt={ recipe.name } />
             </button>
 
             <h3 data-testid={ `${index}-horizontal-top-text` }>
