@@ -1,13 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { useHistory } from 'react-router-dom';
 
 import Header from '../components/Header';
 import FavoriteAndShare from '../components/FavoriteAndShare';
 import * as Styled from './DoneRecipes.styles';
 
 function DoneRecipes() {
-  const history = useHistory();
-
   const [completedRecipes, setCompletedRecipes] = useState([]);
   const [filter, setFilter] = useState('');
 
@@ -15,10 +12,6 @@ function DoneRecipes() {
     const storedCompletedRecipes = JSON.parse(localStorage.getItem('doneRecipes'));
     setCompletedRecipes(storedCompletedRecipes || []);
   }, []);
-
-  const goToRecipeDetails = (recipe) => {
-    history.push(`${recipe.type}s/${recipe.id}`);
-  };
 
   return (
     <Styled.Done>
@@ -68,7 +61,7 @@ function DoneRecipes() {
               <Styled.RecipeDetails>
                 <Styled.RecipeLink
                   data-testid={ `${index}-horizontal-name` }
-                  onClick={ () => goToRecipeDetails(recipe) }
+                  to={ `${recipe.type}s/${recipe.id}` }
                   type="button"
                 >
                   <Styled.RecipeTitle>{ recipe.name }</Styled.RecipeTitle>
