@@ -67,6 +67,5 @@ export const RecipeTitle = styled.h4`
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  max-width: 155px;
 `;
-
-export const RecipeCategory = styled.p``;

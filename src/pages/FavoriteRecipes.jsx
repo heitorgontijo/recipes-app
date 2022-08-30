@@ -69,10 +69,10 @@ function FavoriteRecipes() {
                 >
                   <Styled.RecipeTitle>{recipe.name}</Styled.RecipeTitle>
 
-                  <Styled.RecipeCategory data-testid={ `${index}-horizontal-top-text` }>
+                  <p data-testid={ `${index}-horizontal-top-text` }>
                     { recipe.alcoholicOrNot !== '' ? recipe.alcoholicOrNot
                       : `${recipe.nationality} - ${recipe.category}` }
-                  </Styled.RecipeCategory>
+                  </p>
                 </Styled.RecipeLink>
 
                 <FavoriteAndShare
