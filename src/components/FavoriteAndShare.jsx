@@ -24,16 +24,16 @@ export default function FavoriteAndShare(props) {
 
   const setFavoriteToStorage = () => {
     setIsFavorite(!isFavorite);
-    if (recipe.id) {
-      setFavorite(recipe);
-    } else setFavorite(setDataToFavorite(recipe));
+    if (recipe.id) setFavorite(recipe);
+    else setFavorite(setDataToFavorite(recipe));
     execOnFavorite();
   };
 
   useEffect(() => {
     setIsFavorite(
-      getStorage('favoriteRecipes', [])
-        .some((favorite) => favorite.id === id || favorite.id === recipe.id),
+      getStorage('favoriteRecipes', []).some((favorite) => (
+        favorite.id === id || favorite.id === recipe.id
+      )),
     );
   }, []);
 

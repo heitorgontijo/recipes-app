@@ -17,7 +17,7 @@ export const ShareContainer = styled.div`
     display: flex;
     font-size: 0.8rem;
     justify-content: space-between;
-    left: 6px;
+    left: -18px;
     padding: 8px;
     position: absolute;
     top: -42px;
@@ -35,7 +35,7 @@ export const ShareContainer = styled.div`
       border: 6px solid transparent;
       border-top-color: rgba(0 0 0 / 40%);
       content: '';
-      left: 8px;
+      left: 30px;
       position: absolute;
     }
   }
