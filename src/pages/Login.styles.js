@@ -20,7 +20,7 @@ export const Form = styled.form`
   box-shadow: 0 0 15px rgba(0 0 0 / 15%);
   display: flex;
   flex-direction: column;
-  opacity: 0.96;
+  opacity: 0.97;
   overflow: hidden;
   row-gap: 20px;
 `;
