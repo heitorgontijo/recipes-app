@@ -3,6 +3,7 @@ import { Redirect, useHistory } from 'react-router-dom';
 import AppContext from '../context/AppContext';
 
 import RecipeCard from './RecipeCard';
+import RecipesContainer from './Recipes.styles';
 
 function Recipes() {
   const { location: { pathname } } = useHistory();
@@ -24,7 +25,7 @@ function Recipes() {
   }
 
   return (
-    <section>
+    <RecipesContainer>
       { recipes
         .filter((_recipe, index) => index + 1 <= MAX_RECIPES_TO_SHOW)
         .map((recipe, index) => (
@@ -37,7 +38,7 @@ function Recipes() {
             to={ `${pathname.replace('/', '')}/${recipe.idMeal || recipe.idDrink}` }
           />
         )) }
-    </section>
+    </RecipesContainer>
   );
 }
 

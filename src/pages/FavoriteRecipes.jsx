@@ -4,6 +4,8 @@ import { useHistory } from 'react-router-dom';
 import Header from '../components/Header';
 import blackHeart from '../images/blackHeartIcon.svg';
 
+import * as Styled from './FavoriteRecipes.styles';
+
 function FavoriteRecipes() {
   const [shareRecipe, setShareRecipe] = useState(false);
   const [filter, setFilter] = useState('');
@@ -31,33 +33,38 @@ function FavoriteRecipes() {
   };
 
   return (
-    <div>
+    <Styled.Favorites>
       <Header />
-      FavoriteRecipes
-      <button
-        type="button"
-        data-testid="filter-by-all-btn"
-        onClick={ () => setFilter('') }
-      >
-        All
 
-      </button>
-      <button
-        type="button"
-        data-testid="filter-by-food-btn"
-        onClick={ () => setFilter('food') }
-      >
-        Food
+      <Styled.FilterContainer>
+        <Styled.FilterButton
+          type="button"
+          data-testid="filter-by-all-btn"
+          onClick={ () => setFilter('') }
+          isSelected={ filter === '' }
+        >
+          All
+        </Styled.FilterButton>
 
-      </button>
-      <button
-        type="button"
-        data-testid="filter-by-drink-btn"
-        onClick={ () => setFilter('drink') }
-      >
-        Drink
+        <Styled.FilterButton
+          type="button"
+          data-testid="filter-by-food-btn"
+          onClick={ () => setFilter('food') }
+          isSelected={ filter === 'food' }
+        >
+          Food
+        </Styled.FilterButton>
 
-      </button>
+        <Styled.FilterButton
+          type="button"
+          data-testid="filter-by-drink-btn"
+          onClick={ () => setFilter('drink') }
+          isSelected={ filter === 'drink' }
+        >
+          Drink
+        </Styled.FilterButton>
+      </Styled.FilterContainer>
+
       {favorite
         .filter((recipe) => recipe.type.includes(filter))
         .map((recipe, index) => (
@@ -112,9 +119,7 @@ function FavoriteRecipes() {
             </button>
           </div>
         ))}
-      { shareRecipe && <span>Link copied!</span> }
-
-    </div>
+    </Styled.Favorites>
   );
 }
 

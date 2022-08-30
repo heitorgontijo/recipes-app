@@ -1,19 +1,24 @@
 import React, { useState, useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
+import { MdAlternateEmail } from 'react-icons/md';
+import { AiOutlineEye, AiOutlineEyeInvisible } from 'react-icons/ai';
 
-import '../assets/css/Login.css';
+import * as Styled from './Login.styles';
 
 function Login() {
   const [formData, setFormData] = useState({ email: '', password: '' });
   const [submitButtonIsDisabled, setSubmitButtonIsDisabled] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
+
   const history = useHistory();
 
   const handleChange = ({ target: { name, value } }) => {
     setFormData((prevState) => ({ ...prevState, [name]: value }));
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = (event) => {
+    event.preventDefault();
+
     localStorage.setItem('user', JSON.stringify({ email: formData.email }));
     localStorage.setItem('mealsToken', '1');
     localStorage.setItem('cocktailsToken', '1');
@@ -22,11 +27,10 @@ function Login() {
   };
 
   const validateFormData = () => {
-    const { email, password } = formData;
     const MIN_PASSWORD_SIZE = 7;
 
-    const isValidEmail = /\S+@\S+\.\S+/.test(email);
-    const isValidPassword = password.length >= MIN_PASSWORD_SIZE;
+    const isValidEmail = /\S+@\S+\.\S+/.test(formData.email);
+    const isValidPassword = formData.password.length >= MIN_PASSWORD_SIZE;
 
     setSubmitButtonIsDisabled(!(isValidEmail && isValidPassword));
   };
@@ -34,19 +38,19 @@ function Login() {
   useEffect(validateFormData, [formData]);
 
   return (
-    <main className="page login">
-      <form className="login-form">
-        <header className="form-header">
+    <Styled.Login>
+      <Styled.Form>
+        <Styled.FormHeader>
           <h1>
             Recipes
             <span>App</span>
           </h1>
-        </header>
+        </Styled.FormHeader>
 
-        <label htmlFor="email" className="form-label">
+        <Styled.FormLabel htmlFor="email">
           E-mail:
-          <div className="form-input-group">
-            <input
+          <Styled.InputContainer>
+            <Styled.FormInput
               data-testid="email-input"
               id="email"
               name="email"
@@ -55,14 +59,15 @@ function Login() {
               type="email"
               value={ formData.email }
             />
-            <i className="fa-solid fa-at" />
-          </div>
-        </label>
 
-        <label htmlFor="password" className="form-label">
+            <MdAlternateEmail />
+          </Styled.InputContainer>
+        </Styled.FormLabel>
+
+        <Styled.FormLabel htmlFor="password">
           Password:
-          <div className="form-input-group">
-            <input
+          <Styled.InputContainer>
+            <Styled.FormInput
               data-testid="password-input"
               name="password"
               onChange={ handleChange }
@@ -76,23 +81,21 @@ function Login() {
               onClick={ () => setShowPassword(!showPassword) }
               type="button"
             >
-              { showPassword
-                ? <i className="fa-solid fa-eye-slash" />
-                : <i className="fa-solid fa-eye" /> }
+              { showPassword ? <AiOutlineEyeInvisible /> : <AiOutlineEye /> }
             </button>
-          </div>
-        </label>
+          </Styled.InputContainer>
+        </Styled.FormLabel>
 
-        <button
+        <Styled.Submit
           data-testid="login-submit-btn"
           disabled={ submitButtonIsDisabled }
           onClick={ handleSubmit }
-          type="button"
+          type="submit"
         >
           Login
-        </button>
-      </form>
-    </main>
+        </Styled.Submit>
+      </Styled.Form>
+    </Styled.Login>
   );
 }
 

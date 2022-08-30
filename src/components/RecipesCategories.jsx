@@ -4,10 +4,12 @@ import { string } from 'prop-types';
 import fetchCategories from '../services/fetchCategories';
 
 import AppContext from '../context/AppContext';
+import * as Styled from './RecipesCategories.styles';
 
 function RecipesCategories({ categoryType }) {
   const [filter, setFilter] = useState({ value: '', filterBy: '' });
   const [categories, setCategories] = useState([]);
+  const [selectedCategory, setSelectedCategory] = useState('');
 
   const { getMealsFromAPI, getDrinksFromAPI } = useContext(AppContext);
 
@@ -15,11 +17,12 @@ function RecipesCategories({ categoryType }) {
     ? getMealsFromAPI : getDrinksFromAPI;
 
   const changeFilter = (keyword, filterName) => {
-    const { value, filterBy } = filter;
-
-    if (value === keyword && filterBy === filterName) {
+    if (filter.value === keyword && filter.filterBy === filterName) {
+      setSelectedCategory('');
       return setFilter({ value: '', filterBy: '' });
     }
+
+    setSelectedCategory(keyword);
     return setFilter({ value: keyword, filterBy: filterName });
   };
 
@@ -37,33 +40,32 @@ function RecipesCategories({ categoryType }) {
   const MAX_CATEGORIES_LENGTH = 5;
 
   return (
-    <div>
-      <button
+    <Styled.Categories>
+      <Styled.CategoryButton
         data-testid="All-category-filter"
-        type="button"
         onClick={ () => changeFilter('', 'name') }
+        type="button"
       >
         All
-      </button>
+      </Styled.CategoryButton>
 
       { categories
         .filter((_category, index) => index < MAX_CATEGORIES_LENGTH)
         .map(({ strCategory }) => (
-          <button
+          <Styled.CategoryButton
             data-testid={ `${strCategory}-category-filter` }
+            isSelected={ selectedCategory === strCategory }
             key={ strCategory }
-            type="button"
             onClick={ () => changeFilter(strCategory, 'category') }
+            type="button"
           >
             {strCategory}
-          </button>
+          </Styled.CategoryButton>
         ))}
-    </div>
+    </Styled.Categories>
   );
 }
 
-RecipesCategories.propTypes = {
-  categoryType: string.isRequired,
-};
+RecipesCategories.propTypes = { categoryType: string.isRequired };
 
 export default RecipesCategories;

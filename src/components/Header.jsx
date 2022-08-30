@@ -1,13 +1,15 @@
 import React, { useState, useContext } from 'react';
 import { useHistory } from 'react-router-dom';
+import { BiUser } from 'react-icons/bi';
+import { BsSearch } from 'react-icons/bs';
 
 import AppContext from '../context/AppContext';
 import SearchBar from './SearchBar';
 
-import '../assets/css/Header.css';
-
 import profileIcon from '../images/profileIcon.svg';
 import searchIcon from '../images/searchIcon.svg';
+
+import * as Styled from './Header.styles';
 
 function Header() {
   const [searchInputIsVisible, setSearchInputIsVisible] = useState(false);
@@ -19,7 +21,7 @@ function Header() {
 
   const showSearchButtonOn = ['/foods', '/drinks'];
 
-  const routesTitle = {
+  const routesTitles = {
     '/foods': 'Foods',
     '/drinks': 'Drinks',
     '/done-recipes': 'Done Recipes',
@@ -28,57 +30,47 @@ function Header() {
   };
 
   return (
-    <header className="header">
-      <section className="header-main">
-        <button
+    <Styled.Header>
+      <Styled.TitleContainer>
+        <Styled.ProfileButton
           data-testid="profile-top-btn"
-          className="header-profile"
           onClick={ () => history.push('/profile') }
           src={ profileIcon }
           type="button"
         >
-          {/* <img data-testid="profile-top-btn" src={ profileIcon } alt="profile icon" /> */}
-          <i className="fa-solid fa-user-large" />
-        </button>
+          <BiUser />
+        </Styled.ProfileButton>
 
-        <h1
-          className="header-title"
-          data-testid="page-title"
-        >
-          {routesTitle[pathname]}
+        <h1 data-testid="page-title">
+          { routesTitles[pathname] }
         </h1>
 
         { showSearchButtonOn.includes(pathname)
-        && (
-          <button
-            className="header-search-button"
-            data-testid="search-top-btn"
-            onClick={ () => setSearchInputIsVisible(!searchInputIsVisible) }
-            src={ searchIcon }
-            type="button"
-          >
-            {/* <img
-              alt="search icon"
+          && (
+            <Styled.SearchButton
               data-testid="search-top-btn"
+              onClick={ () => setSearchInputIsVisible(!searchInputIsVisible) }
               src={ searchIcon }
-            /> */}
-            <i className="fas fa-search" />
-          </button>
-        ) }
-      </section>
+              type="button"
+            >
+              <BsSearch />
+            </Styled.SearchButton>
+          ) }
+      </Styled.TitleContainer>
 
       { searchInputIsVisible && (
-        <div className="header-input-area">
+        <Styled.InputContainer>
           <input
             data-testid="search-input"
             onChange={ ({ target: { value } }) => updateSearch(value) }
-            placeholder="Search recipe"
+            placeholder="Search recipe..."
             value={ search }
           />
+
           <SearchBar />
-        </div>
+        </Styled.InputContainer>
       ) }
-    </header>
+    </Styled.Header>
   );
 }
 
