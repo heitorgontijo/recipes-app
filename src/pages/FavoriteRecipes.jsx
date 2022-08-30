@@ -1,36 +1,21 @@
 import React, { useEffect, useState } from 'react';
-import copy from 'clipboard-copy';
-import { useHistory } from 'react-router-dom';
-import Header from '../components/Header';
-import blackHeart from '../images/blackHeartIcon.svg';
 
+import getStorage from '../storage/getStorage';
+
+import Header from '../components/Header';
+import FavoriteAndShare from '../components/FavoriteAndShare';
 import * as Styled from './FavoriteRecipes.styles';
 
 function FavoriteRecipes() {
-  const [shareRecipe, setShareRecipe] = useState(false);
   const [filter, setFilter] = useState('');
   const [favorite, setFavorite] = useState([]);
 
-  const history = useHistory();
-
-  useEffect(() => {
-    const favoriteStorage = JSON.parse(localStorage.getItem('favoriteRecipes'));
-    if (favoriteStorage) {
-      setFavorite(JSON.parse(localStorage.getItem('favoriteRecipes')));
-    }
-  }, []);
-  // const favorite = JSON.parse(localStorage.getItem('favoriteRecipes'));
-
-  const handleFavorite = (id) => {
-    const idFilter = favorite.filter((recipe) => recipe.id !== id);
-    console.log(idFilter);
-    localStorage.setItem('favoriteRecipes', JSON.stringify([...idFilter]));
-    setFavorite(idFilter);
+  const getFavoriteRecipes = () => {
+    const favoriteRecipes = getStorage('favoriteRecipes', []);
+    setFavorite(favoriteRecipes);
   };
 
-  const goToRecipeDetails = (recipe) => {
-    history.push(`/${recipe.type}s/${recipe.id}`);
-  };
+  useEffect(() => getFavoriteRecipes(), []);
 
   return (
     <Styled.Favorites>
@@ -65,60 +50,41 @@ function FavoriteRecipes() {
         </Styled.FilterButton>
       </Styled.FilterContainer>
 
-      {favorite
-        .filter((recipe) => recipe.type.includes(filter))
-        .map((recipe, index) => (
-          <div key={ recipe.id }>
+      <Styled.FavoritesContainer>
+        { favorite
+          .filter((recipe) => recipe.type.includes(filter))
+          .map((recipe, index) => (
+            <Styled.FavoriteCard key={ recipe.id }>
+              <Styled.RecipeLink
+                to={ `/${recipe.type}s/${recipe.id}` }
+                data-testid={ `${index}-horizontal-image` }
+              >
+                <Styled.ImageTemplate src={ recipe.image } alt={ recipe.name } />
+              </Styled.RecipeLink>
 
-            <button
-              className="done"
-              onClick={ () => goToRecipeDetails(recipe) }
-              type="button"
-              data-testid={ `${index}-horizontal-image` }
-              src={ recipe.image }
-            >
-              <img src={ recipe.image } alt={ recipe.name } />
-            </button>
-            <h3 data-testid={ `${index}-horizontal-top-text` }>
-              { recipe.alcoholicOrNot !== '' ? recipe.alcoholicOrNot
-                : `${recipe.nationality} - ${recipe.category}` }
-            </h3>
-            <button
-              data-testid={ `${index}-horizontal-name` }
-              type="button"
-              onClick={ () => goToRecipeDetails(recipe) }
-            >
-              <h4>
-                {recipe.name}
-              </h4>
+              <Styled.RecipeDetails>
+                <Styled.RecipeLink
+                  data-testid={ `${index}-horizontal-name` }
+                  to={ `/${recipe.type}s/${recipe.id}` }
+                >
+                  <Styled.RecipeTitle>{recipe.name}</Styled.RecipeTitle>
 
-            </button>
+                  <Styled.RecipeCategory data-testid={ `${index}-horizontal-top-text` }>
+                    { recipe.alcoholicOrNot !== '' ? recipe.alcoholicOrNot
+                      : `${recipe.nationality} - ${recipe.category}` }
+                  </Styled.RecipeCategory>
+                </Styled.RecipeLink>
 
-            <button
-              type="button"
-              data-testid={ `${index}-horizontal-share-btn` }
-              src="shareIcon"
-              onClick={ () => {
-                copy(
-                  `${window
-                    .location
-                    .href.replace('favorite-recipes', '')}${recipe.type}s/${recipe.id}`,
-                ); setShareRecipe(true);
-              } }
-            >
-              O elemento de compartilhar a receita
-            </button>
-
-            <button
-              onClick={ () => handleFavorite(recipe.id) }
-              type="button"
-              data-testid={ `${index}-horizontal-favorite-btn` }
-              src={ blackHeart }
-            >
-              <img src={ blackHeart } alt="coração preenchido" />
-            </button>
-          </div>
-        ))}
+                <FavoriteAndShare
+                  recipe={ recipe }
+                  link={ `${window.location.href
+                    .replace('favorite-recipes', '')}${recipe.type}s/${recipe.id}` }
+                  execOnFavorite={ getFavoriteRecipes }
+                />
+              </Styled.RecipeDetails>
+            </Styled.FavoriteCard>
+          ))}
+      </Styled.FavoritesContainer>
     </Styled.Favorites>
   );
 }
