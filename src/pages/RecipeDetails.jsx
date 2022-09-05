@@ -38,7 +38,7 @@ function RecipeDetails() {
             `${recipeData[key]} ${recipeData[measureKeys[index]] || ''}`
           )));
       });
-  }, []);
+  }, [RECIPE_TYPE, id]);
 
   useEffect(() => {
     const MAX_RECOMMENDATIONS_LENGTH = 6;
@@ -50,14 +50,14 @@ function RecipeDetails() {
         setRecommendations(recommendationsFromApi
           .filter((_item, index) => index < MAX_RECOMMENDATIONS_LENGTH));
       });
-  }, []);
+  }, [RECIPE_TYPE]);
 
   useEffect(() => {
     setStartRecipe(!getStorage('doneRecipes', []).some((stored) => stored.id === id));
 
     const progressStored = getStorage('inProgressRecipes', { cocktails: {}, meals: {} });
     setRecipeInProgress(progressStored.cocktails[id] || progressStored.meals[id]);
-  }, []);
+  }, [id]);
 
   return (
     <Styled.RecipeDetails>
