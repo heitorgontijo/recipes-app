@@ -1,6 +1,6 @@
 # 🍔🧇 Bem-vindo ao Recipe-app🍰🥙
 
-Desenvolvi um esqueleto para aplicativo para mobile de receitas de comida, </br>
+Foi desenvolvido um modelo de aplicativo de receitas de comida, </br>
 Explorar receitas baseado em diferentes critérios, favoritar e fazer as receitas, entre outras funcionalidades.
 onde é possivel procurar por comidas ou bebidas, podendo iniciar a receita e ir marcando os ingredientes concluidos/separados e ter um melhor controle do preparo referente ás receitas,</br>
 com possibilidade de salvar e favoritas as melhores.</br>
