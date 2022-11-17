@@ -8,6 +8,40 @@ import getStorage from '../storage/getStorage';
 import FavoriteAndShare from '../components/FavoriteAndShare';
 import * as Styled from './RecipeDetails.styles';
 
+const useEfect = (setRecipe, setIngredients,
+  setRecommendations, setRecipeInProgress) => {
+  fetchRecipeDetails(id, RECIPE_TYPE)
+    .then((data) => {
+      const recipeData = data[RECIPE_TYPE][0];
+
+      const ingredientKeys = Object.keys(recipeData)
+        .filter((key) => key.match(/strIngredient/i) && recipeData[key]);
+
+      const measureKeys = Object.keys(recipeData)
+        .filter((key) => key.match(/strMeasure/i) && recipeData[key]);
+
+      setRecipe(recipeData);
+      setIngredients(ingredientKeys
+        .map((key, index) => (
+          `${recipeData[key]} ${recipeData[measureKeys[index]] || ''}`
+        )));
+    });
+
+  const MAX_RECOMMENDATIONS_LENGTH = 6;
+  const RECOMMENDATION_TYPE = RECIPE_TYPE === 'meals' ? 'drinks' : 'meals';
+
+  fetchMealsOrDrinks('', 'name', RECOMMENDATION_TYPE)
+    .then((data) => {
+      const recommendationsFromApi = data[RECOMMENDATION_TYPE];
+      setRecommendations(recommendationsFromApi
+        .filter((_item, index) => index < MAX_RECOMMENDATIONS_LENGTH));
+    });
+
+  setStartRecipe(!getStorage('doneRecipes', []).some((stored) => stored.id === id));
+
+  const progressStored = getStorage('inProgressRecipes', { cocktails: {}, meals: {} });
+  setRecipeInProgress(progressStored.cocktails[id] || progressStored.meals[id]);
+};
 function RecipeDetails() {
   const history = useHistory();
   const { location: { pathname } } = history;
@@ -21,36 +55,38 @@ function RecipeDetails() {
 
   const RECIPE_TYPE = pathname.match(/foods\//i) ? 'meals' : 'drinks';
 
-  useEffect(() => {
-    fetchRecipeDetails(id, RECIPE_TYPE)
-      .then((data) => {
-        const recipeData = data[RECIPE_TYPE][0];
+  useEfect(setRecipe, setIngredients,
+    setRecommendations, setRecipeInProgress);
+  // // useEffect(() => {
+  // //   fetchRecipeDetails(id, RECIPE_TYPE)
+  // //     .then((data) => {
+  // //       const recipeData = data[RECIPE_TYPE][0];
 
-        const ingredientKeys = Object.keys(recipeData)
-          .filter((key) => key.match(/strIngredient/i) && recipeData[key]);
+  // //       const ingredientKeys = Object.keys(recipeData)
+  // //         .filter((key) => key.match(/strIngredient/i) && recipeData[key]);
 
-        const measureKeys = Object.keys(recipeData)
-          .filter((key) => key.match(/strMeasure/i) && recipeData[key]);
+  // //       const measureKeys = Object.keys(recipeData)
+  // //         .filter((key) => key.match(/strMeasure/i) && recipeData[key]);
 
-        setRecipe(recipeData);
-        setIngredients(ingredientKeys
-          .map((key, index) => (
-            `${recipeData[key]} ${recipeData[measureKeys[index]] || ''}`
-          )));
-      });
-  }, [RECIPE_TYPE, id]);
+  // //       setRecipe(recipeData);
+  // //       setIngredients(ingredientKeys
+  // //         .map((key, index) => (
+  // //           `${recipeData[key]} ${recipeData[measureKeys[index]] || ''}`
+  // //         )));
+  // //     });
+  // // }, [RECIPE_TYPE, id]);
 
-  useEffect(() => {
-    const MAX_RECOMMENDATIONS_LENGTH = 6;
-    const RECOMMENDATION_TYPE = RECIPE_TYPE === 'meals' ? 'drinks' : 'meals';
+  // // useEffect(() => {
+  // //   const MAX_RECOMMENDATIONS_LENGTH = 6;
+  // //   const RECOMMENDATION_TYPE = RECIPE_TYPE === 'meals' ? 'drinks' : 'meals';
 
-    fetchMealsOrDrinks('', 'name', RECOMMENDATION_TYPE)
-      .then((data) => {
-        const recommendationsFromApi = data[RECOMMENDATION_TYPE];
-        setRecommendations(recommendationsFromApi
-          .filter((_item, index) => index < MAX_RECOMMENDATIONS_LENGTH));
-      });
-  }, [RECIPE_TYPE]);
+  // //   fetchMealsOrDrinks('', 'name', RECOMMENDATION_TYPE)
+  // //     .then((data) => {
+  // //       const recommendationsFromApi = data[RECOMMENDATION_TYPE];
+  // //       setRecommendations(recommendationsFromApi
+  // //         .filter((_item, index) => index < MAX_RECOMMENDATIONS_LENGTH));
+  // //     });
+  // // }, [RECIPE_TYPE]);
 
   useEffect(() => {
     setStartRecipe(!getStorage('doneRecipes', []).some((stored) => stored.id === id));
